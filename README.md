@@ -66,7 +66,7 @@ npm run dev
 
 ## Contributing
 
-This project is under active development for hackathon participation. Contributions welcome!
+This project is under active development!
 
 ## License
 
