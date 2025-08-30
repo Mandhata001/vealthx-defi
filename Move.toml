@@ -4,7 +4,7 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-vealthfx = "_"
+vealthfx = "0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf"
 
 [dev-addresses]
 vealthfx = "0xCAFE"
