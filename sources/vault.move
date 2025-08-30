@@ -87,6 +87,7 @@ module vealthfx::vault {
     }
 
     /// Read vault state
+    #[view]
     public fun get_vault(account: address): (u64, u64) acquires Vault {
         if (!exists<Vault>(account)) {
             return (0, 0)
