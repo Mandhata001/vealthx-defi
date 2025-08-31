@@ -11,18 +11,19 @@ Set-Location $projectPath
 
 # Test 1: Compile contracts
 Write-Host "`n📦 Step 1: Compiling contracts..." -ForegroundColor Yellow
-& .\tools\aptos\aptos.exe move compile --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+& .\tools\aptos\aptos.exe move compile --named-addresses vealthfx=`$env:APTOS_ACCOUNT_ADDRESS
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Compilation successful!" -ForegroundColor Green
 } else {
     Write-Host "❌ Compilation failed!" -ForegroundColor Red
+    Write-Host "💡 Make sure to set APTOS_ACCOUNT_ADDRESS environment variable" -ForegroundColor Yellow
     exit 1
 }
 
 # Test 2: Run unit tests
 Write-Host "`n🧪 Step 2: Running unit tests..." -ForegroundColor Yellow
-& .\tools\aptos\aptos.exe move test --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+& .\tools\aptos\aptos.exe move test --named-addresses vealthfx=`$env:APTOS_ACCOUNT_ADDRESS
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ All unit tests passed!" -ForegroundColor Green
@@ -33,7 +34,7 @@ if ($LASTEXITCODE -eq 0) {
 
 # Test 3: Publish to devnet (simulation)
 Write-Host "`n🚀 Step 3: Publishing to devnet..." -ForegroundColor Yellow
-$publishOutput = & .\tools\aptos\aptos.exe move publish --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf --assume-yes 2>&1
+$publishOutput = & .\tools\aptos\aptos.exe move publish --named-addresses vealthfx=`$env:APTOS_ACCOUNT_ADDRESS --assume-yes 2>&1
 
 Write-Host "📋 Publish output:"
 Write-Host $publishOutput

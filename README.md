@@ -59,6 +59,26 @@ vealthfx/
 - Node.js 18+ and npm
 - Aptos CLI v7.7.0
 
+### 🔐 Security Setup (Important!)
+
+1. **Configure your Aptos account:**
+   ```bash
+   cd vealthfx
+   aptos init --network devnet
+   ```
+
+2. **Set your contract address:**
+   - Update `Move.toml` with your account address
+   - Replace `<YOUR_CONTRACT_ADDRESS>` in commands with your actual address
+   - Never commit private keys to git repositories
+
+3. **Environment Variables (Recommended):**
+   ```bash
+   # Create .env file (add to .gitignore)
+   APTOS_PRIVATE_KEY=your_private_key_here
+   APTOS_ACCOUNT_ADDRESS=your_account_address_here
+   ```
+
 ### Frontend Development
 ```bash
 cd vealthfx/frontend
@@ -70,15 +90,15 @@ npm run dev
 
 ```bash
 cd vealthfx
-.\tools\aptos\aptos.exe move compile --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
-.\tools\aptos\aptos.exe move test --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+.\tools\aptos\aptos.exe move compile --named-addresses vealthfx=<YOUR_CONTRACT_ADDRESS>
+.\tools\aptos\aptos.exe move test --named-addresses vealthfx=<YOUR_CONTRACT_ADDRESS>
 ```
 
 ### Deployment
 
 ```bash
 # Deploy to Aptos devnet
-.\tools\aptos\aptos.exe move publish --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf --assume-yes
+.\tools\aptos\aptos.exe move publish --named-addresses vealthfx=<YOUR_CONTRACT_ADDRESS> --assume-yes
 ```
 
 ## 🧪 Testing
@@ -87,7 +107,7 @@ All tests are passing! Run the test suite:
 
 ```bash
 # Run all unit tests
-.\tools\aptos\aptos.exe move test --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+.\tools\aptos\aptos.exe move test --named-addresses vealthfx=<YOUR_CONTRACT_ADDRESS>
 
 # Run oracle integration tests
 .\test_oracle_integration.ps1
@@ -97,6 +117,7 @@ All tests are passing! Run the test suite:
 
 ## 📚 Documentation
 
+- [🔐 Security Guidelines](SECURITY.md) **← READ FIRST!**
 - [Competitor Analysis](vealthfx/docs/competitors.md)
 - [MVP Features & User Stories](vealthfx/docs/features.md)
 - [Technology Stack](vealthfx/docs/stack.md)
@@ -158,7 +179,7 @@ The backend is 100% complete and ready. Next steps:
 
    ```bash
    cd vealthfx
-   .\tools\aptos\aptos.exe move test --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+   .\tools\aptos\aptos.exe move test --named-addresses vealthfx=<YOUR_CONTRACT_ADDRESS>
    ```
 
 3. **Start frontend development**

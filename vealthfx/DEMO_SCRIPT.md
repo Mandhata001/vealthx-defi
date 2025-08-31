@@ -7,8 +7,8 @@ This script demonstrates VealthX DeFi vault functionality on Aptos Devnet.
 ### Contract Information
 
 - **Network**: Aptos Devnet
-- **Contract Address**: `0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf`
-- **Explorer**: https://explorer.aptoslabs.com/account/0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf?network=devnet
+- **Contract Address**: `<YOUR_CONTRACT_ADDRESS>` (Replace after deployment)
+- **Explorer**: https://explorer.aptoslabs.com/account/<YOUR_CONTRACT_ADDRESS>?network=devnet
 
 ### Demo Commands
 

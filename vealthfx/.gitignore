@@ -1,4 +1,13 @@
+# Security - Never commit sensitive files!
 .aptos/
+.env
+.env.local
+.env.production
+config.yaml
+**/config.yaml
+**/.aptos/
+
+# Build files
 build/
 
 # Aptos CLI binaries (too large for GitHub)
