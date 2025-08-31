@@ -1,0 +1,60 @@
+#[test_only]
+module vealthx::integration_tests {
+    use std::signer;
+    use vealthx::vault;
+    use vealthx::router;
+    use std::debug;
+
+    #[test(account = @0xA)]
+    public fun test_full_integration(a: &signer) {
+        // Initialize vault
+        vault::init_vault(a);
+        
+        // Test vault can interact with router system
+        let (initial_collateral, initial_borrowed) = vault::get_vault(signer::address_of(a));
+        assert!(initial_collateral == 0, 1);
+        assert!(initial_borrowed == 0, 2);
+        
+        // Test router pool selection
+        let pools = vector[
+            router::create_pool(b"LowAPY", 5),
+            router::create_pool(b"HighAPY", 15),
+            router::create_pool(b"MediumAPY", 10)
+        ];
+        let best = router::best_pool(pools);
+        assert!(router::get_apy(&best) == 15, 3);
+        assert!(router::get_name(&best) == b"HighAPY", 4);
+        
+        // Test auto_route function which combines vault + router
+        vault::auto_route(a);
+        
+        // Verify vault still exists after auto_route
+        let (final_collateral, final_borrowed) = vault::get_vault(signer::address_of(a));
+        assert!(final_collateral == 0, 5);
+        assert!(final_borrowed == 0, 6);
+    }
+
+    #[test(account = @0xB)]
+    public fun test_vault_router_interaction(b: &signer) {
+        // Test that vault can call router functions
+        vault::init_vault(b);
+        
+        // Create multiple pools to test routing logic
+        let test_pools = vector[
+            router::create_pool(b"Echelon", 8),
+            router::create_pool(b"Merkle", 10),
+            router::create_pool(b"Hippo", 7),
+            router::create_pool(b"Pancake", 9)
+        ];
+        
+        // Router should pick Merkle (highest APY)
+        let best_choice = router::best_pool(test_pools);
+        assert!(router::get_apy(&best_choice) == 10, 1);
+        assert!(router::get_name(&best_choice) == b"Merkle", 2);
+        
+        // Auto-route should log the same choice
+        vault::auto_route(b);
+        
+        debug::print(&b"Integration test completed successfully");
+    }
+}

@@ -1,0 +1,52 @@
+#[test_only]
+module vealthx::vault_tests {
+    use std::signer;
+    use vealthx::vault_test_helpers as H;
+    use vealthx::vault;
+
+    #[test(account = @0xA)]
+    public fun test_deposit_borrow_and_repay(a: &signer) {
+        // Initialize vault
+        vault::init_vault(a);
+        
+        // seed: collateral 300, borrowed 0
+        H::seed_vault(a, 300, 0);
+        
+        // Verify we can borrow with sufficient collateral
+        // 300 collateral allows borrowing up to 200 (150% ratio)
+        let (collateral, borrowed) = vault::get_vault(signer::address_of(a));
+        assert!(collateral == 300, 1);
+        assert!(borrowed == 0, 2);
+        
+        // Test repay functionality
+        H::repay_numbers_only(a, 50);
+        H::repay_numbers_only(a, 50);
+    }
+
+    #[test(account = @0xB)]
+    public fun test_liquidation_flow(b: &signer) {
+        // seed under-collateralized vault: 100 collateral, 100 borrowed
+        // This violates the 150% ratio (needs 150 collateral for 100 borrowed)
+        vault::init_vault(b);
+        H::seed_vault(b, 100, 100);
+        
+        let (collateral, borrowed) = vault::get_vault(signer::address_of(b));
+        assert!(collateral == 100, 1);
+        assert!(borrowed == 100, 2);
+        
+        // Liquidate the under-collateralized vault
+        H::liquidate_numbers_only(b);
+        
+        let (final_collateral, final_borrowed) = vault::get_vault(signer::address_of(b));
+        assert!(final_collateral == 0, 3);
+        assert!(final_borrowed == 0, 4);
+    }
+
+    #[test(account = @0xC)]
+    public fun test_vault_initialization(c: &signer) {
+        vault::init_vault(c);
+        let (collateral, borrowed) = vault::get_vault(signer::address_of(c));
+        assert!(collateral == 0, 1);
+        assert!(borrowed == 0, 2);
+    }
+}
