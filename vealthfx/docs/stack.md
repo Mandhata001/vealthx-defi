@@ -73,3 +73,28 @@ cd contracts
 - ✅ **Version-locked:** Consistent CLI version across team
 - ✅ **Clean:** No system pollution
 - ✅ **Hackathon-ready:** Complete setup in one repo
+
+# VealthFX Tech Stack
+
+## Languages & Frameworks
+
+- **Move** → Smart contract language for Aptos
+- **TypeScript + React + TailwindCSS** → Frontend
+
+## SDKs & Tools
+
+- **Aptos TS SDK** → Wallet connection + contract calls
+- **Aptos Build / MCP** → Dev + testing environment
+- **Aptos CLI** (local in `/tools/aptos/`) → Compile, test, deploy
+
+## Oracles
+
+- Start: **Mock Oracle** (simulate prices for dev/testing)
+- Upgrade: **Pyth Network Oracle** (real price feeds)
+
+## DeFi / Market Infra
+
+- **Econia** → Central Limit Order Book (CLOB) for order execution
+- **Hyperion** → Real-time data streaming (alerts)
+
+---

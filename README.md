@@ -7,6 +7,7 @@ A revolutionary DeFi platform that enables instant liquidity for Real World Asse
 ## 🚀 Current Status (Aug 31, 2025)
 
 ✅ **Backend: 100% Complete**
+
 - ✅ Oracle integration working perfectly
 - ✅ Vault-Router-Oracle flow implemented
 - ✅ All unit tests passing (12/12)
@@ -32,7 +33,7 @@ A revolutionary DeFi platform that enables instant liquidity for Real World Asse
 
 ```
 vealthfx/
-├── frontend/          # React + Tailwind frontend  
+├── frontend/          # React + Tailwind frontend
 ├── sources/           # Move smart contracts
 │   ├── vault.move     # Core DeFi vault with oracle integration
 │   ├── router.move    # Automated yield routing
@@ -47,8 +48,10 @@ vealthfx/
 ## Getting Started
 
 ### Frontend Development
->>>>>>> ee007c9524779528c5fc43aa45f5872a44db66da
-```
+
+> > > > > > > ee007c9524779528c5fc43aa45f5872a44db66da
+
+````
 
 ## Setup Instructions
 
@@ -61,9 +64,10 @@ vealthfx/
 cd vealthfx/frontend
 npm install
 npm run dev
-```
+````
 
 ### Smart Contract Development
+
 ```bash
 cd vealthfx
 .\tools\aptos\aptos.exe move compile --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
@@ -71,6 +75,7 @@ cd vealthfx
 ```
 
 ### Deployment
+
 ```bash
 # Deploy to Aptos devnet
 .\tools\aptos\aptos.exe move publish --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf --assume-yes
@@ -105,12 +110,14 @@ All tests are passing! Run the test suite:
 ### ✅ Completed Components
 
 1. **Oracle Module** (`oracle.move`)
+
    - Mock price feeds for RWA assets
    - Multi-asset support (RWA1: $1.00, RWA2: $1.50, APT: $8.00)
    - Price retrieval with timestamps
    - Full integration with vault operations
 
-2. **Vault Module** (`vault.move`)  
+2. **Vault Module** (`vault.move`)
+
    - Complete DeFi vault lifecycle (deposit, borrow, repay, withdraw, liquidate)
    - Oracle-powered pricing for collateral valuation
    - Auto-routing integration for yield optimization
@@ -124,6 +131,7 @@ All tests are passing! Run the test suite:
 ### 🔄 Next Phase: Frontend Development
 
 The backend is 100% complete and ready. Next steps:
+
 - Wallet integration (Aptos Wallet Adapter)
 - Dashboard UI with portfolio tracking
 - Transaction interface for vault operations
@@ -140,12 +148,14 @@ The backend is 100% complete and ready. Next steps:
 ## 🚀 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Mandhata001/vealthx-defi.git
    cd vealthx-defi
    ```
 
 2. **Test smart contracts**
+
    ```bash
    cd vealthfx
    .\tools\aptos\aptos.exe move test --named-addresses vealthfx=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
@@ -165,7 +175,7 @@ The backend is 100% complete and ready. Next steps:
 ✅ **Phase 3:** Oracle Integration (Complete)  
 ✅ **Phase 4:** Testing and Deployment (Complete)  
 🔄 **Phase 5:** Frontend Development (Ready to start)  
-🔄 **Phase 6:** Advanced Features (Multi-asset, real oracles)  
+🔄 **Phase 6:** Advanced Features (Multi-asset, real oracles)
 
 ## 🤝 Contributing
 
