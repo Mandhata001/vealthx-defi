@@ -4,7 +4,7 @@ version = "1.0.0"
 authors = ["Mandhata Pathak"]
 
 [addresses]
-vealthfx = "_" # Replace with your account address after running `aptos init`
+vealthfx = "60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf"
 
 [dependencies.AptosFramework]
 git = "https://github.com/aptos-labs/aptos-framework.git"

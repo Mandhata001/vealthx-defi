@@ -2,9 +2,25 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
+import { PetraWallet } from "petra-plugin-wallet-adapter";
+
+// Configure supported wallets
+const wallets = [
+  new PetraWallet(),
+  // Add more wallets here as needed
+];
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <AptosWalletAdapterProvider 
+      plugins={wallets} 
+      autoConnect={false}
+      onError={(error) => {
+        console.error("Wallet adapter error:", error);
+      }}
+    >
+      <App />
+    </AptosWalletAdapterProvider>
   </StrictMode>,
 )
