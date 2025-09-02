@@ -9,7 +9,7 @@ import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
 
 function App() {
   const { account, connect, disconnect, connecting } = useWallet();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,8 +27,8 @@ function App() {
       onClick={() => onClick(id)}
       className={`flex items-center space-x-3 px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
         isActive
-          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25 transform scale-105'
-          : 'text-gray-400 hover:text-white hover:bg-white/10 backdrop-blur-sm'
+          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25 transform scale-105"
+          : "text-gray-400 hover:text-white hover:bg-white/10 backdrop-blur-sm"
       }`}
     >
       <span className="text-xl">{icon}</span>
@@ -42,16 +42,27 @@ function App() {
         <div className="text-center">
           <div className="relative">
             <div className="w-24 h-24 border-4 border-purple-300/30 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-24 h-24 border-4 border-transparent border-r-blue-500 rounded-full animate-spin mx-auto" style={{animationDirection: 'reverse', animationDuration: '1s'}}></div>
+            <div
+              className="absolute inset-0 w-24 h-24 border-4 border-transparent border-r-blue-500 rounded-full animate-spin mx-auto"
+              style={{ animationDirection: "reverse", animationDuration: "1s" }}
+            ></div>
           </div>
           <h2 className="mt-8 text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             VealthX
           </h2>
-          <p className="mt-3 text-purple-200 text-lg">Initializing DeFi protocol...</p>
+          <p className="mt-3 text-purple-200 text-lg">
+            Initializing DeFi protocol...
+          </p>
           <div className="mt-6 flex justify-center space-x-1">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div
+              className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
           </div>
         </div>
       </div>
@@ -79,10 +90,12 @@ function App() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {APP_NAME}
                 </h1>
-                <p className="text-purple-200 font-medium">Next-Gen DeFi Vault Protocol</p>
+                <p className="text-purple-200 font-medium">
+                  Next-Gen DeFi Vault Protocol
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {account ? (
                 <div className="flex items-center space-x-4">
@@ -128,33 +141,33 @@ function App() {
       {/* Navigation Tabs */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="flex flex-wrap gap-4 mb-8">
-          <TabButton 
-            id="dashboard" 
-            label="Dashboard" 
-            icon="📊" 
-            isActive={activeTab === 'dashboard'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="dashboard"
+            label="Dashboard"
+            icon="📊"
+            isActive={activeTab === "dashboard"}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="vault" 
-            label="My Vault" 
-            icon="🏦" 
-            isActive={activeTab === 'vault'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="vault"
+            label="My Vault"
+            icon="🏦"
+            isActive={activeTab === "vault"}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="pools" 
-            label="Pools" 
-            icon="💎" 
-            isActive={activeTab === 'pools'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="pools"
+            label="Pools"
+            icon="💎"
+            isActive={activeTab === "pools"}
+            onClick={setActiveTab}
           />
-          <TabButton 
-            id="analytics" 
-            label="Analytics" 
-            icon="📈" 
-            isActive={activeTab === 'analytics'} 
-            onClick={setActiveTab} 
+          <TabButton
+            id="analytics"
+            label="Analytics"
+            icon="📈"
+            isActive={activeTab === "analytics"}
+            onClick={setActiveTab}
           />
         </div>
       </div>
@@ -167,9 +180,12 @@ function App() {
               <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-blue-500/25">
                 <span className="text-4xl">🔐</span>
               </div>
-              <h2 className="text-3xl font-bold text-white mb-4">Connect Your Wallet</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Connect Your Wallet
+              </h2>
               <p className="text-purple-200 text-lg mb-8">
-                Connect your Petra wallet to start earning yield with VealthX DeFi vaults
+                Connect your Petra wallet to start earning yield with VealthX
+                DeFi vaults
               </p>
               <button
                 onClick={connect}
@@ -183,7 +199,7 @@ function App() {
         ) : (
           <div className="space-y-8">
             {/* Dashboard Tab */}
-            {activeTab === 'dashboard' && (
+            {activeTab === "dashboard" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -198,7 +214,7 @@ function App() {
             )}
 
             {/* Vault Tab */}
-            {activeTab === 'vault' && (
+            {activeTab === "vault" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <VaultViewer />
                 <YieldChart />
@@ -206,12 +222,10 @@ function App() {
             )}
 
             {/* Pools Tab */}
-            {activeTab === 'pools' && (
-              <PoolStatsEnhanced />
-            )}
+            {activeTab === "pools" && <PoolStatsEnhanced />}
 
             {/* Analytics Tab */}
-            {activeTab === 'analytics' && (
+            {activeTab === "analytics" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <YieldChart />
                 <PoolStatsEnhanced />
@@ -228,16 +242,27 @@ function App() {
             <div className="flex items-center space-x-4 mb-4 md:mb-0">
               <div className="text-white font-bold text-lg">VealthX</div>
               <span className="text-purple-300">•</span>
-              <div className="text-purple-300">Built for CTRL+MOVE Hackathon</div>
+              <div className="text-purple-300">
+                Built for CTRL+MOVE Hackathon
+              </div>
             </div>
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-purple-300 hover:text-white transition-colors"
+              >
                 📚 Docs
               </a>
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-purple-300 hover:text-white transition-colors"
+              >
                 🐦 Twitter
               </a>
-              <a href="#" className="text-purple-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-purple-300 hover:text-white transition-colors"
+              >
                 💬 Discord
               </a>
             </div>

@@ -9,7 +9,7 @@ import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
 
 function App() {
   const { account, connect, disconnect, connecting } = useWallet();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,11 +27,15 @@ function App() {
       onClick={() => onClick(id)}
       className={`group relative flex items-center space-x-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-500 transform ${
         isActive
-          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-2xl shadow-blue-500/25 scale-105'
-          : 'text-gray-300 hover:text-white hover:bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20'
+          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-2xl shadow-blue-500/25 scale-105"
+          : "text-gray-300 hover:text-white hover:bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20"
       }`}
     >
-      <span className={`text-2xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+      <span
+        className={`text-2xl transition-transform duration-300 ${
+          isActive ? "scale-110" : "group-hover:scale-110"
+        }`}
+      >
         {icon}
       </span>
       <span className="font-bold tracking-wide">{label}</span>
@@ -50,21 +54,32 @@ function App() {
           <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-pink-500/20 rounded-full filter blur-3xl animate-blob animation-delay-4000"></div>
         </div>
-        
+
         <div className="relative z-10 text-center animate-fade-in">
           <div className="relative mb-8">
             <div className="w-32 h-32 border-4 border-purple-300/30 border-t-purple-500 border-r-blue-500 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-32 h-32 border-4 border-transparent border-l-pink-500 border-b-cyan-500 rounded-full animate-spin mx-auto" style={{animationDirection: 'reverse', animationDuration: '2s'}}></div>
+            <div
+              className="absolute inset-0 w-32 h-32 border-4 border-transparent border-l-pink-500 border-b-cyan-500 rounded-full animate-spin mx-auto"
+              style={{ animationDirection: "reverse", animationDuration: "2s" }}
+            ></div>
           </div>
           <div className="space-y-4">
             <h2 className="text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse-glow">
               VealthX
             </h2>
-            <p className="text-purple-200 text-xl font-medium">Next-Gen DeFi Protocol</p>
+            <p className="text-purple-200 text-xl font-medium">
+              Next-Gen DeFi Protocol
+            </p>
             <div className="flex justify-center space-x-2 mt-8">
               <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
-              <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-              <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+              <div
+                className="w-3 h-3 bg-purple-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+              <div
+                className="w-3 h-3 bg-pink-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
             </div>
           </div>
         </div>
@@ -79,7 +94,7 @@ function App() {
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
         <div className="absolute top-40 left-40 w-96 h-96 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
-        
+
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       </div>
@@ -99,10 +114,12 @@ function App() {
                 <h1 className="text-4xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   {APP_NAME}
                 </h1>
-                <p className="text-purple-200 font-semibold text-lg">Next-Gen DeFi Vault Protocol</p>
+                <p className="text-purple-200 font-semibold text-lg">
+                  Next-Gen DeFi Vault Protocol
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-6">
               {account ? (
                 <div className="flex items-center space-x-6">
@@ -153,9 +170,12 @@ function App() {
               <div className="w-32 h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-blue-500/25 animate-float">
                 <span className="text-5xl">🔗</span>
               </div>
-              <h2 className="text-6xl font-black text-white mb-6">Connect Your Wallet</h2>
+              <h2 className="text-6xl font-black text-white mb-6">
+                Connect Your Wallet
+              </h2>
               <p className="text-2xl text-purple-200 mb-12 max-w-2xl mx-auto leading-relaxed">
-                Access the future of DeFi with instant RWA liquidity, advanced yield strategies, and seamless cross-chain integration.
+                Access the future of DeFi with instant RWA liquidity, advanced
+                yield strategies, and seamless cross-chain integration.
               </p>
               <button
                 onClick={connect}
@@ -174,67 +194,67 @@ function App() {
                 id="dashboard"
                 label="Dashboard"
                 icon="📊"
-                isActive={activeTab === 'dashboard'}
+                isActive={activeTab === "dashboard"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="deposit"
                 label="Deposit"
                 icon="💰"
-                isActive={activeTab === 'deposit'}
+                isActive={activeTab === "deposit"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="borrow"
                 label="Borrow"
                 icon="🏦"
-                isActive={activeTab === 'borrow'}
+                isActive={activeTab === "borrow"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="vault"
                 label="Vault"
                 icon="🔐"
-                isActive={activeTab === 'vault'}
+                isActive={activeTab === "vault"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="analytics"
                 label="Analytics"
                 icon="📈"
-                isActive={activeTab === 'analytics'}
+                isActive={activeTab === "analytics"}
                 onClick={setActiveTab}
               />
             </div>
 
             {/* Tab Content */}
             <div className="mt-12">
-              {activeTab === 'dashboard' && (
+              {activeTab === "dashboard" && (
                 <div className="space-y-8 animate-slide-in-up">
                   <PoolStatsEnhanced />
                   <YieldChart />
                 </div>
               )}
-              
-              {activeTab === 'deposit' && (
+
+              {activeTab === "deposit" && (
                 <div className="animate-slide-in-up">
                   <DepositForm />
                 </div>
               )}
-              
-              {activeTab === 'borrow' && (
+
+              {activeTab === "borrow" && (
                 <div className="animate-slide-in-up">
                   <BorrowForm />
                 </div>
               )}
-              
-              {activeTab === 'vault' && (
+
+              {activeTab === "vault" && (
                 <div className="animate-slide-in-up">
                   <VaultViewer />
                 </div>
               )}
-              
-              {activeTab === 'analytics' && (
+
+              {activeTab === "analytics" && (
                 <div className="animate-slide-in-up">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <PoolStatsEnhanced />
@@ -253,35 +273,85 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-white">VealthX</h3>
-              <p className="text-purple-200">Revolutionary DeFi protocol for the next generation of decentralized finance.</p>
+              <p className="text-purple-200">
+                Revolutionary DeFi protocol for the next generation of
+                decentralized finance.
+              </p>
             </div>
             <div className="space-y-4">
               <h4 className="text-lg font-bold text-white">Protocol</h4>
               <div className="space-y-2">
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Documentation</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Whitepaper</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Security Audit</a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Documentation
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Whitepaper
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Security Audit
+                </a>
               </div>
             </div>
             <div className="space-y-4">
               <h4 className="text-lg font-bold text-white">Developers</h4>
               <div className="space-y-2">
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">API Reference</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">SDK</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">GitHub</a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  API Reference
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  SDK
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  GitHub
+                </a>
               </div>
             </div>
             <div className="space-y-4">
               <h4 className="text-lg font-bold text-white">Community</h4>
               <div className="space-y-2">
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Twitter</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Discord</a>
-                <a href="#" className="block text-purple-300 hover:text-white transition-colors">Telegram</a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Twitter
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Discord
+                </a>
+                <a
+                  href="#"
+                  className="block text-purple-300 hover:text-white transition-colors"
+                >
+                  Telegram
+                </a>
               </div>
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-white/10 text-center">
-            <p className="text-purple-300">© 2025 VealthX. All rights reserved. Built on Aptos.</p>
+            <p className="text-purple-300">
+              © 2025 VealthX. All rights reserved. Built on Aptos.
+            </p>
           </div>
         </div>
       </footer>

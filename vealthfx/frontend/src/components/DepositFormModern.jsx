@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { buildDepositPayload, getExplorerUrl, submitSponsoredTransaction, GAS_STATION_ENABLED } from "../lib/aptos";
+import {
+  buildDepositPayload,
+  getExplorerUrl,
+  submitSponsoredTransaction,
+  GAS_STATION_ENABLED,
+} from "../lib/aptos";
 
 export default function DepositForm() {
   const { account, signAndSubmitTransaction } = useWallet();
@@ -14,7 +19,7 @@ export default function DepositForm() {
       alert("Please connect your wallet first");
       return;
     }
-    
+
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       alert("Please enter a valid amount greater than 0");
       return;
@@ -27,25 +32,27 @@ export default function DepositForm() {
     try {
       const payload = buildDepositPayload(amount);
       console.log("Deposit payload:", payload);
-      
+
       // Use Gas Station for sponsored transactions (CTRL+MOVE Hackathon)
       let response;
       if (GAS_STATION_ENABLED) {
         console.log("🚀 Using Gas Station for sponsored transaction");
-        response = await submitSponsoredTransaction({ account, signAndSubmitTransaction }, payload);
+        response = await submitSponsoredTransaction(
+          { account, signAndSubmitTransaction },
+          payload
+        );
       } else {
         response = await signAndSubmitTransaction(payload);
       }
-      
+
       console.log("Transaction response:", response);
-      
+
       setLastTx(response.hash);
       setSuccess(true);
       setAmount("");
-      
+
       // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
-      
     } catch (error) {
       console.error("Transaction failed:", error);
       alert(`Transaction failed: ${error.message}`);
@@ -82,15 +89,19 @@ export default function DepositForm() {
           </div>
         )}
       </div>
-      
+
       {/* Success Message */}
       {success && (
         <div className="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-2xl">
           <div className="flex items-center space-x-2">
             <span className="text-green-400 text-xl">✅</span>
             <div>
-              <p className="text-green-300 font-semibold">Deposit Successful!</p>
-              <p className="text-green-200 text-sm">Transaction confirmed on blockchain</p>
+              <p className="text-green-300 font-semibold">
+                Deposit Successful!
+              </p>
+              <p className="text-green-200 text-sm">
+                Transaction confirmed on blockchain
+              </p>
             </div>
           </div>
         </div>
@@ -162,7 +173,7 @@ export default function DepositForm() {
               <span>Processing...</span>
             </div>
           ) : (
-            `Deposit ${amount || '0'} APT`
+            `Deposit ${amount || "0"} APT`
           )}
         </button>
 

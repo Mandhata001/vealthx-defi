@@ -1,7 +1,9 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+// Performance optimization configuration
+// Add to vite.config.js
 
-// https://vite.dev/config/
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
 export default defineConfig({
   plugins: [react()],
   
@@ -26,16 +28,11 @@ export default defineConfig({
     }
   },
   
-  esbuild: {
-    loader: "jsx",
-    include: /src\/.*\.[jt]sx?$/,
-    exclude: [],
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        ".js": "jsx",
-      },
-    },
-  },
-});
+  // Asset optimization
+  assetsInclude: ['**/*.svg', '**/*.png', '**/*.jpg'],
+  
+  // CSS optimization
+  css: {
+    postcss: './postcss.config.js'
+  }
+})

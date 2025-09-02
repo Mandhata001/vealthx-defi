@@ -9,7 +9,7 @@ import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
 
 function App() {
   const { account, connect, disconnect, connecting } = useWallet();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,8 +27,8 @@ function App() {
       onClick={() => onClick(id)}
       className={`flex items-center space-x-3 px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
         isActive
-          ? 'btn-primary text-white shadow-lg transform scale-105'
-          : 'text-gray-400 hover:text-white hover:bg-white/10 backdrop-blur-sm'
+          ? "btn-primary text-white shadow-lg transform scale-105"
+          : "text-gray-400 hover:text-white hover:bg-white/10 backdrop-blur-sm"
       }`}
     >
       <span className="text-xl">{icon}</span>
@@ -42,16 +42,25 @@ function App() {
         <div className="text-center">
           <div className="relative">
             <div className="w-24 h-24 border-4 border-purple-300/30 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-24 h-24 border-4 border-transparent border-r-blue-500 rounded-full animate-spin mx-auto" style={{animationDirection: 'reverse', animationDuration: '1s'}}></div>
+            <div
+              className="absolute inset-0 w-24 h-24 border-4 border-transparent border-r-blue-500 rounded-full animate-spin mx-auto"
+              style={{ animationDirection: "reverse", animationDuration: "1s" }}
+            ></div>
           </div>
-          <h2 className="mt-8 text-3xl font-bold text-blue-400">
-            VealthX
-          </h2>
-          <p className="mt-3 text-purple-200 text-lg">Initializing DeFi protocol...</p>
+          <h2 className="mt-8 text-3xl font-bold text-blue-400">VealthX</h2>
+          <p className="mt-3 text-purple-200 text-lg">
+            Initializing DeFi protocol...
+          </p>
           <div className="mt-6 flex justify-center space-x-1">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div
+              className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
           </div>
         </div>
       </div>
@@ -76,13 +85,13 @@ function App() {
                 <span className="text-2xl font-bold text-white">V</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-blue-400">
-                  {APP_NAME}
-                </h1>
-                <p className="text-purple-200 font-medium">Next-Gen DeFi Vault Protocol</p>
+                <h1 className="text-3xl font-bold text-blue-400">{APP_NAME}</h1>
+                <p className="text-purple-200 font-medium">
+                  Next-Gen DeFi Vault Protocol
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {account ? (
                 <div className="flex items-center space-x-4">
@@ -132,8 +141,9 @@ function App() {
                 Welcome to <span className="text-blue-400">VealthX</span>
               </h1>
               <p className="text-xl text-gray-300 mb-12 leading-relaxed">
-                The next-generation DeFi vault protocol on Aptos. Deposit collateral, borrow stablecoins, 
-                and earn yield with institutional-grade security and transparency.
+                The next-generation DeFi vault protocol on Aptos. Deposit
+                collateral, borrow stablecoins, and earn yield with
+                institutional-grade security and transparency.
               </p>
               <button
                 onClick={() => connect("Petra")}
@@ -153,52 +163,52 @@ function App() {
                 id="dashboard"
                 label="Dashboard"
                 icon="📊"
-                isActive={activeTab === 'dashboard'}
+                isActive={activeTab === "dashboard"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="deposit"
                 label="Deposit"
                 icon="💰"
-                isActive={activeTab === 'deposit'}
+                isActive={activeTab === "deposit"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="borrow"
                 label="Borrow"
                 icon="💳"
-                isActive={activeTab === 'borrow'}
+                isActive={activeTab === "borrow"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="vault"
                 label="My Vault"
                 icon="🏦"
-                isActive={activeTab === 'vault'}
+                isActive={activeTab === "vault"}
                 onClick={setActiveTab}
               />
               <TabButton
                 id="analytics"
                 label="Analytics"
                 icon="📈"
-                isActive={activeTab === 'analytics'}
+                isActive={activeTab === "analytics"}
                 onClick={setActiveTab}
               />
             </div>
 
             {/* Tab Content */}
             <div className="animate-fade-in">
-              {activeTab === 'dashboard' && (
+              {activeTab === "dashboard" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <PoolStatsEnhanced />
                   <YieldChart />
                 </div>
               )}
-              
-              {activeTab === 'deposit' && <DepositForm />}
-              {activeTab === 'borrow' && <BorrowForm />}
-              {activeTab === 'vault' && <VaultViewer />}
-              {activeTab === 'analytics' && (
+
+              {activeTab === "deposit" && <DepositForm />}
+              {activeTab === "borrow" && <BorrowForm />}
+              {activeTab === "vault" && <VaultViewer />}
+              {activeTab === "analytics" && (
                 <div className="grid grid-cols-1 gap-8">
                   <PoolStatsEnhanced />
                   <YieldChart />
@@ -224,23 +234,42 @@ function App() {
                 </div>
               </div>
               <p className="text-gray-300 mb-6 max-w-md">
-                Secure, transparent, and efficient DeFi lending protocol built on Aptos blockchain.
+                Secure, transparent, and efficient DeFi lending protocol built
+                on Aptos blockchain.
               </p>
             </div>
-            
+
             <div>
               <h4 className="text-white font-semibold mb-4">Protocol</h4>
               <div className="space-y-2">
-                <a href="#" className="text-purple-300 hover:text-white transition-colors block">Documentation</a>
-                <a href="#" className="text-purple-300 hover:text-white transition-colors block">Security</a>
-                <a href="#" className="text-purple-300 hover:text-white transition-colors block">Governance</a>
+                <a
+                  href="#"
+                  className="text-purple-300 hover:text-white transition-colors block"
+                >
+                  Documentation
+                </a>
+                <a
+                  href="#"
+                  className="text-purple-300 hover:text-white transition-colors block"
+                >
+                  Security
+                </a>
+                <a
+                  href="#"
+                  className="text-purple-300 hover:text-white transition-colors block"
+                >
+                  Governance
+                </a>
               </div>
             </div>
-            
+
             <div>
               <h4 className="text-white font-semibold mb-4">Community</h4>
               <div className="space-y-2">
-                <a href="#" className="text-purple-300 hover:text-white transition-colors">
+                <a
+                  href="#"
+                  className="text-purple-300 hover:text-white transition-colors"
+                >
                   💬 Discord
                 </a>
               </div>

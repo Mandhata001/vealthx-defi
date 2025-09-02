@@ -1,27 +1,32 @@
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
 // Network configuration
-export const NETWORK = import.meta.env.VITE_NETWORK === "mainnet" ? Network.MAINNET : Network.DEVNET;
-export const NODE_URL = import.meta.env.VITE_NODE_URL || "https://fullnode.devnet.aptoslabs.com/v1";
+export const NETWORK =
+  import.meta.env.VITE_NETWORK === "mainnet" ? Network.MAINNET : Network.DEVNET;
+export const NODE_URL =
+  import.meta.env.VITE_NODE_URL || "https://fullnode.devnet.aptoslabs.com/v1";
 export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 // Aptos Build Integration (CTRL+MOVE Hackathon)
 export const APTOS_BUILD_API_KEY = import.meta.env.VITE_APTOS_BUILD_API_KEY;
-export const GAS_STATION_ENABLED = import.meta.env.VITE_GAS_STATION_ENABLED === 'true';
-export const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT || "https://api.devnet.aptoslabs.com/v1/graphql";
+export const GAS_STATION_ENABLED =
+  import.meta.env.VITE_GAS_STATION_ENABLED === "true";
+export const GRAPHQL_ENDPOINT =
+  import.meta.env.VITE_GRAPHQL_ENDPOINT ||
+  "https://api.devnet.aptoslabs.com/v1/graphql";
 
 // Enhanced Aptos configuration with Build integration
-const config = new AptosConfig({ 
+const config = new AptosConfig({
   network: NETWORK,
   fullnode: NODE_URL,
   // Add API key for enhanced limits if available
-  ...(APTOS_BUILD_API_KEY && { 
+  ...(APTOS_BUILD_API_KEY && {
     clientConfig: {
       headers: {
-        'Authorization': `Bearer ${APTOS_BUILD_API_KEY}`
-      }
-    }
-  })
+        Authorization: `Bearer ${APTOS_BUILD_API_KEY}`,
+      },
+    },
+  }),
 });
 
 export const aptos = new Aptos(config);
@@ -49,25 +54,25 @@ export function buildDepositPayload(amount) {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::deposit_collateral`,
     type_arguments: ["0x1::aptos_coin::AptosCoin"],
-    arguments: [toOctas(amount)]
+    arguments: [toOctas(amount)],
   };
 }
 
 export function buildBorrowPayload(amount) {
   return {
-    type: "entry_function_payload", 
+    type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::borrow_asset`,
     type_arguments: [],
-    arguments: [toOctas(amount)]
+    arguments: [toOctas(amount)],
   };
 }
 
 export function buildWithdrawPayload(amount) {
   return {
     type: "entry_function_payload",
-    function: `${CONTRACT_ADDRESS}::vault::withdraw_collateral`, 
+    function: `${CONTRACT_ADDRESS}::vault::withdraw_collateral`,
     type_arguments: ["0x1::aptos_coin::AptosCoin"],
-    arguments: [toOctas(amount)]
+    arguments: [toOctas(amount)],
   };
 }
 
@@ -75,8 +80,8 @@ export function buildRepayPayload(amount) {
   return {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::repay_debt`,
-    type_arguments: ["0x1::aptos_coin::AptosCoin"], 
-    arguments: [toOctas(amount)]
+    type_arguments: ["0x1::aptos_coin::AptosCoin"],
+    arguments: [toOctas(amount)],
   };
 }
 
@@ -84,23 +89,25 @@ export function buildRepayPayload(amount) {
 export async function queryGraphQL(query, variables = {}) {
   try {
     const response = await fetch(GRAPHQL_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        ...(APTOS_BUILD_API_KEY && { 'Authorization': `Bearer ${APTOS_BUILD_API_KEY}` })
+        "Content-Type": "application/json",
+        ...(APTOS_BUILD_API_KEY && {
+          Authorization: `Bearer ${APTOS_BUILD_API_KEY}`,
+        }),
       },
-      body: JSON.stringify({ query, variables })
+      body: JSON.stringify({ query, variables }),
     });
-    
+
     const result = await response.json();
     if (result.errors) {
-      console.error('GraphQL errors:', result.errors);
-      throw new Error('GraphQL query failed');
+      console.error("GraphQL errors:", result.errors);
+      throw new Error("GraphQL query failed");
     }
-    
+
     return result.data;
   } catch (error) {
-    console.error('GraphQL query error:', error);
+    console.error("GraphQL query error:", error);
     throw error;
   }
 }
@@ -160,15 +167,18 @@ export async function submitSponsoredTransaction(wallet, payload) {
         // Gas sponsorship options
         maxGasAmount: 10000,
         gasUnitPrice: 0, // Sponsored transactions can have 0 gas price
-      }
+      },
     });
 
     // Sign and submit with sponsorship
     const response = await wallet.signAndSubmitTransaction(transaction);
-    console.log('Sponsored transaction submitted:', response.hash);
+    console.log("Sponsored transaction submitted:", response.hash);
     return response;
   } catch (error) {
-    console.error('Sponsored transaction failed, falling back to regular:', error);
+    console.error(
+      "Sponsored transaction failed, falling back to regular:",
+      error
+    );
     // Fallback to regular transaction
     return await wallet.signAndSubmitTransaction(payload);
   }
@@ -179,27 +189,27 @@ export async function getVaultAnalytics(vaultAddress) {
   try {
     const data = await queryGraphQL(VAULT_EVENTS_QUERY, {
       contract_address: vaultAddress,
-      limit: 50
+      limit: 50,
     });
-    
+
     // Process events for analytics
     const events = data.events || [];
-    const deposits = events.filter(e => e.type.includes('deposit'));
-    const borrows = events.filter(e => e.type.includes('borrow'));
-    
+    const deposits = events.filter((e) => e.type.includes("deposit"));
+    const borrows = events.filter((e) => e.type.includes("borrow"));
+
     return {
       totalDeposits: deposits.length,
       totalBorrows: borrows.length,
       recentActivity: events.slice(0, 10),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Failed to fetch vault analytics:', error);
+    console.error("Failed to fetch vault analytics:", error);
     return {
       totalDeposits: 0,
       totalBorrows: 0,
       recentActivity: [],
-      lastUpdated: null
+      lastUpdated: null,
     };
   }
 }

@@ -15,15 +15,15 @@ export const COLORS = {
 // Contract Constants
 export const VAULT_STATES = {
   ACTIVE: "active",
-  LIQUIDATING: "liquidating", 
-  CLOSED: "closed"
+  LIQUIDATING: "liquidating",
+  CLOSED: "closed",
 };
 
 // Transaction Constants
 export const TX_STATUS = {
   PENDING: "pending",
-  SUCCESS: "success", 
-  FAILED: "failed"
+  SUCCESS: "success",
+  FAILED: "failed",
 };
 
 // Mock data for development
@@ -31,7 +31,7 @@ export const MOCK_POOLS = [
   { name: "Merkle", apy: 10.5, tvl: "2.4M", risk: "Low" },
   { name: "Hippo", apy: 8.2, tvl: "1.8M", risk: "Medium" },
   { name: "Pancake", apy: 12.1, tvl: "3.1M", risk: "High" },
-  { name: "Thala", apy: 7.8, tvl: "1.2M", risk: "Low" }
+  { name: "Thala", apy: 7.8, tvl: "1.2M", risk: "Low" },
 ];
 
 export const MOCK_YIELD_DATA = [
@@ -41,5 +41,5 @@ export const MOCK_YIELD_DATA = [
   { date: "2025-08-28", apy: 9.4 },
   { date: "2025-08-29", apy: 10.2 },
   { date: "2025-08-30", apy: 9.8 },
-  { date: "2025-08-31", apy: 10.5 }
+  { date: "2025-08-31", apy: 10.5 },
 ];
