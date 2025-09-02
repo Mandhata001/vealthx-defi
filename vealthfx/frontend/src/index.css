@@ -11,6 +11,38 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
   background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-width: 320px;
+}
+
+/* Ensure proper centering for main container */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Additional layout fixes */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure full width containers */
+.full-width-container {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Center content properly */
+.centered-content {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Component styles */

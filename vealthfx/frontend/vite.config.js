@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'add-nojekyll',
+      name: "add-nojekyll",
       closeBundle() {
-        writeFileSync('dist/.nojekyll', '');
-      }
-    }
+        writeFileSync("dist/.nojekyll", "");
+      },
+    },
   ],
   base: "/vealthx-defi/",
 
