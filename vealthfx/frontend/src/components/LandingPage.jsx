@@ -1,4 +1,5 @@
 import React from 'react';
+import VealthXLogo from '../assets/VealthX_logo.png';
 
 const LandingPage = ({ handleConnect, handleDemoMode, connecting, walletError }) => {
   return (
@@ -6,11 +7,11 @@ const LandingPage = ({ handleConnect, handleDemoMode, connecting, walletError })
       {/* Hero Section */}
       <div className="text-center py-20">
         <div className="space-y-8 max-w-5xl mx-auto">
-          <div className="w-32 h-32 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8 p-4 hover:bg-white/20 transition-all duration-300 group">
+          <div className="logo-container logo-glow logo-pulse w-32 h-32 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8 p-6 hover:bg-white/20 transition-all duration-500 group">
             <img
-              src="/vealthx-logo.png"
+              src={VealthXLogo}
               alt="VealthX Logo"
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
               onError={(e) => {
                 e.target.style.display = "none";
                 e.target.nextSibling.style.display = "flex";
