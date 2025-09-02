@@ -5,7 +5,6 @@ import BorrowForm from "./components/BorrowForm.jsx";
 import VaultViewer from "./components/VaultViewer.jsx";
 import PoolStatsEnhanced from "./components/PoolStatsEnhanced.jsx";
 import YieldChart from "./components/YieldChart.jsx";
-import WalletDebugPanel from "./components/WalletDebugPanel.jsx";
 import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
 
 function App() {
@@ -312,9 +311,6 @@ function App() {
           </div>
         </div>
       </footer>
-
-      {/* Debug Panel */}
-      <WalletDebugPanel />
     </div>
   );
 }
