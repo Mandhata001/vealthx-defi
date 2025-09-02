@@ -14,6 +14,7 @@ This repository contains smart contract code for development and hackathon purpo
 ### 🛡️ Best Practices
 
 1. **Environment Setup:**
+
    ```bash
    # Create .env file (add to .gitignore)
    APTOS_PRIVATE_KEY=your_private_key_here
@@ -21,6 +22,7 @@ This repository contains smart contract code for development and hackathon purpo
    ```
 
 2. **Configuration:**
+
    - Use placeholders like `<YOUR_CONTRACT_ADDRESS>` in documentation
    - Use `"_"` in Move.toml for development
    - Configure actual addresses only in local environment
@@ -33,12 +35,14 @@ This repository contains smart contract code for development and hackathon purpo
 ### 🔧 Development Workflow
 
 1. **Initial Setup:**
+
    ```bash
    aptos init --network devnet
    # This creates .aptos/config.yaml with your keys locally
    ```
 
 2. **Update Move.toml:**
+
    ```toml
    [addresses]
    vealthfx = "YOUR_ACTUAL_ADDRESS_HERE"  # Only locally
@@ -53,7 +57,7 @@ This repository contains smart contract code for development and hackathon purpo
 ### 📋 Security Checklist
 
 - [ ] `.aptos/` is in `.gitignore`
-- [ ] `.env` files are in `.gitignore`  
+- [ ] `.env` files are in `.gitignore`
 - [ ] No private keys in any committed files
 - [ ] Addresses are parameterized, not hardcoded
 - [ ] Sensitive config files are excluded from git

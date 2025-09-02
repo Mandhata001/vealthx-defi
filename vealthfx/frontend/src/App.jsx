@@ -5,6 +5,7 @@ import BorrowForm from "./components/BorrowForm.jsx";
 import VaultViewer from "./components/VaultViewer.jsx";
 import PoolStatsEnhanced from "./components/PoolStatsEnhanced.jsx";
 import YieldChart from "./components/YieldChart.jsx";
+import WalletDebugPanel from "./components/WalletDebugPanel.jsx";
 import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
 
 function App() {
@@ -13,15 +14,34 @@ function App() {
   const [isLoading, setIsLoading] = useState(false); // Changed from true to false
   const [walletError, setWalletError] = useState("");
 
-  // Remove artificial loading delay for better LCP
+  // Enhanced wallet detection and auto-connection
   useEffect(() => {
-    // Quick wallet detection
-    if (window.aptos) {
-      console.log("✅ Petra wallet detected");
-    } else {
-      console.log("❌ Petra wallet not found");
-      setWalletError("Please install Petra wallet extension");
-    }
+    const checkWalletStatus = async () => {
+      console.log("🔍 Checking wallet status...");
+      
+      if (window.aptos) {
+        console.log("✅ Petra wallet detected");
+        
+        // Check if already connected
+        try {
+          const account = await window.aptos.account();
+          if (account) {
+            console.log("✅ Wallet already connected:", account.address);
+          }
+        } catch (error) {
+          console.log("⏳ Wallet detected but not connected");
+        }
+      } else {
+        console.log("❌ Petra wallet not found");
+        setWalletError("Please install Petra wallet extension");
+      }
+    };
+    
+    // Check immediately and after a short delay for extension loading
+    checkWalletStatus();
+    const timer = setTimeout(checkWalletStatus, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const truncateAddress = (address) => {
@@ -33,11 +53,27 @@ function App() {
     try {
       setWalletError("");
       console.log("🔄 Attempting wallet connection...");
-      await connect();
+      
+      // Check if Petra wallet is available
+      if (!window.aptos) {
+        throw new Error("Petra wallet extension not found. Please install Petra wallet.");
+      }
+      
+      // Attempt connection with specific wallet name
+      await connect("Petra");
       console.log("✅ Wallet connected successfully");
     } catch (error) {
       console.error("❌ Wallet connection failed:", error);
       setWalletError(`Connection failed: ${error.message}`);
+      
+      // Provide specific guidance based on error
+      if (error.message.includes("User rejected")) {
+        setWalletError("Connection cancelled. Please try again and approve the connection.");
+      } else if (error.message.includes("not found")) {
+        setWalletError("Please install Petra wallet extension and refresh the page.");
+      } else {
+        setWalletError(`Connection failed: ${error.message}`);
+      }
     }
   };
 
@@ -77,8 +113,19 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <span className="text-xl font-bold text-white">V</span>
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center p-1 hover:bg-white/20 transition-all duration-300">
+                <img 
+                  src="/vealthx-logo.png" 
+                  alt="VealthX Logo" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hidden items-center justify-center">
+                  <span className="text-xl font-bold text-white">V</span>
+                </div>
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -139,8 +186,19 @@ function App() {
         {!account ? (
           <div className="text-center py-16">
             <div className="space-y-6">
-              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8">
-                <span className="text-3xl">🔗</span>
+              <div className="w-32 h-32 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8 p-4 hover:bg-white/20 transition-all duration-300 group">
+                <img 
+                  src="/vealthx-logo.png" 
+                  alt="VealthX Logo" 
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hidden items-center justify-center">
+                  <span className="text-4xl font-bold text-white">V</span>
+                </div>
               </div>
               <h2 className="text-4xl font-bold text-white mb-4">Connect Your Wallet</h2>
               <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
@@ -254,6 +312,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Debug Panel */}
+      <WalletDebugPanel />
     </div>
   );
 }

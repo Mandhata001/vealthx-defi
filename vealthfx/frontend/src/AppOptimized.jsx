@@ -84,10 +84,12 @@ function App() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {APP_NAME}
                 </h1>
-                <p className="text-purple-200 text-sm">Next-Gen DeFi Protocol</p>
+                <p className="text-purple-200 text-sm">
+                  Next-Gen DeFi Protocol
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {account ? (
                 <div className="flex items-center space-x-4">
@@ -142,9 +144,12 @@ function App() {
               <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8">
                 <span className="text-3xl">🔗</span>
               </div>
-              <h2 className="text-4xl font-bold text-white mb-4">Connect Your Wallet</h2>
+              <h2 className="text-4xl font-bold text-white mb-4">
+                Connect Your Wallet
+              </h2>
               <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
-                Access instant RWA liquidity and advanced yield strategies on Aptos
+                Access instant RWA liquidity and advanced yield strategies on
+                Aptos
               </p>
               <button
                 onClick={handleConnect}
@@ -153,20 +158,30 @@ function App() {
               >
                 {connecting ? "Connecting..." : "Launch DeFi Dashboard"}
               </button>
-              
+
               {/* Wallet Detection Status */}
               <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-xl max-w-md mx-auto">
-                <h3 className="text-white font-semibold mb-2">Wallet Status:</h3>
+                <h3 className="text-white font-semibold mb-2">
+                  Wallet Status:
+                </h3>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-purple-200">Petra Extension:</span>
-                    <span className={window.aptos ? "text-green-400" : "text-red-400"}>
+                    <span
+                      className={
+                        window.aptos ? "text-green-400" : "text-red-400"
+                      }
+                    >
                       {window.aptos ? "✅ Detected" : "❌ Not Found"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-purple-200">Connection:</span>
-                    <span className={connected ? "text-green-400" : "text-yellow-400"}>
+                    <span
+                      className={
+                        connected ? "text-green-400" : "text-yellow-400"
+                      }
+                    >
                       {connected ? "✅ Connected" : "⏳ Pending"}
                     </span>
                   </div>
@@ -174,7 +189,8 @@ function App() {
                 {!window.aptos && (
                   <div className="mt-3 p-2 bg-orange-500/10 border border-orange-500/20 rounded-lg">
                     <p className="text-orange-200 text-xs">
-                      Please install Petra wallet extension and refresh this page
+                      Please install Petra wallet extension and refresh this
+                      page
                     </p>
                   </div>
                 )}
@@ -230,11 +246,11 @@ function App() {
                   <YieldChart />
                 </div>
               )}
-              
+
               {activeTab === "deposit" && <DepositForm />}
               {activeTab === "borrow" && <BorrowForm />}
               {activeTab === "vault" && <VaultViewer />}
-              
+
               {activeTab === "analytics" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <PoolStatsEnhanced />
@@ -250,7 +266,9 @@ function App() {
       <footer className="relative z-10 mt-16 backdrop-blur-sm bg-white/5 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-purple-300">© 2025 VealthX. Built on Aptos blockchain.</p>
+            <p className="text-purple-300">
+              © 2025 VealthX. Built on Aptos blockchain.
+            </p>
           </div>
         </div>
       </footer>

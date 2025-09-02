@@ -9,6 +9,7 @@
 ## 🚀 Hackathon Resource Integration
 
 ### 1. Aptos Build + MCP Integration ✅
+
 - **Gas Station**: Sponsored transactions for seamless UX
 - **No-code Indexer**: Real-time vault and pool data
 - **API Gateway**: Enhanced rate limits for live trading data
@@ -16,16 +17,19 @@
 ### 2. Enhanced Features Using Hackathon Resources
 
 #### A. Order-Book Explorer Integration 🟢
+
 - Stream depth data from GraphQL endpoint
 - Real-time trade visualization in PoolStats component
 - Live order book display for copy trading decisions
 
 #### B. Copy-Trading Vault Enhancement 🟡
+
 - Mirror successful trader strategies
 - Automated position tracking and P&L calculation
 - Risk management with stop-loss integration
 
 #### C. Real-Time Data Streams 🟡
+
 - Block-by-block vault updates
 - Live yield calculation and display
 - Continuous monitoring dashboard
@@ -33,16 +37,19 @@
 ### 3. Technical Implementation Roadmap
 
 #### Phase 1: Aptos Build Integration
+
 - [ ] Set up Gas Station for sponsored transactions
 - [ ] Configure no-code indexer for vault events
 - [ ] Implement GraphQL data streaming
 
 #### Phase 2: Advanced DeFi Features
+
 - [ ] Real-time order book integration
 - [ ] Copy trading vault mechanics
 - [ ] Risk management system
 
 #### Phase 3: UX Polish & Demo
+
 - [ ] Mobile-responsive design
 - [ ] Interactive trading dashboard
 - [ ] Demo video preparation
@@ -66,6 +73,7 @@
 ## 🛠️ Resource Utilization
 
 ### Core Hackathon Tools Used:
+
 - ✅ **Aptos Build**: Gas Station + Indexer + API Gateway
 - ✅ **TypeScript SDK**: Latest v1.39.0 for contract interaction
 - ✅ **GraphQL Indexer**: Real-time blockchain data streams
@@ -73,6 +81,7 @@
 - ⏳ **Aptos MCP**: AI-assisted development workflow
 
 ### Advanced Integrations Planned:
+
 - **Econia CLOB**: Order book data for copy trading signals
 - **Hyperion**: Money streaming for yield distribution
 - **Merkle Trade**: Leveraged position references

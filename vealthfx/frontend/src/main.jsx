@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AptosWalletAdapterProvider
       plugins={wallets}
-      autoConnect={false}
+      autoConnect={true}
       onError={(error) => {
         console.error("Wallet adapter error:", error);
       }}
