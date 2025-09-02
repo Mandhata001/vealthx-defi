@@ -7,18 +7,18 @@ const LandingPage = ({ handleConnect, handleDemoMode, connecting, walletError })
       {/* Hero Section */}
       <div className="text-center py-20">
         <div className="space-y-8 max-w-5xl mx-auto">
-          <div className="logo-container logo-glow logo-pulse w-32 h-32 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8 p-6 hover:bg-white/20 transition-all duration-500 group">
+          <div className="logo-container logo-glow logo-pulse logo-enhanced w-48 h-48 lg:w-56 lg:h-56 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-12 p-8 hover:bg-white/20 transition-all duration-500 group shadow-2xl">
             <img
               src={VealthXLogo}
               alt="VealthX Logo"
-              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-2xl"
+              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-2xl filter brightness-125 contrast-110"
               onError={(e) => {
                 e.target.style.display = "none";
                 e.target.nextSibling.style.display = "flex";
               }}
             />
             <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hidden items-center justify-center">
-              <span className="text-4xl font-bold text-white">V</span>
+              <span className="text-6xl font-bold text-white">V</span>
             </div>
           </div>
           

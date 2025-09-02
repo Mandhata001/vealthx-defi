@@ -133,11 +133,11 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
-              <div className="logo-container logo-glow logo-pulse w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center p-2 hover:bg-white/20 transition-all duration-300">
+              <div className="logo-container logo-glow logo-pulse w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center p-3 hover:bg-white/20 transition-all duration-300 shadow-lg">
                 <img
                   src={VealthXLogo}
                   alt="VealthX Logo"
-                  className="w-full h-full object-contain drop-shadow-lg"
+                  className="w-full h-full object-contain drop-shadow-lg filter brightness-110"
                   onError={(e) => {
                     e.target.style.display = "none";
                     e.target.nextSibling.style.display = "flex";
