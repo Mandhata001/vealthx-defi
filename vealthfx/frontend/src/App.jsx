@@ -1,291 +1,438 @@
-import React, { useState, useEffect } from "react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useState, useEffect } from "react";
+import "./App.css";
 import DepositForm from "./components/DepositForm.jsx";
 import BorrowForm from "./components/BorrowForm.jsx";
 import VaultViewer from "./components/VaultViewer.jsx";
-import PoolStatsEnhanced from "./components/PoolStatsEnhanced.jsx";
-import YieldChart from "./components/YieldChart.jsx";
-import LandingPage from "./components/LandingPage.jsx";
-import DemoDashboard from "./components/DemoDashboard.jsx";
-import { APP_NAME, APP_DESCRIPTION } from "./lib/constants";
-import VealthXLogo from "./assets/VealthX_logo.png";
+import Analytics from "./components/Analytics.jsx";
+import TradingDashboard from "./components/TradingDashboard.jsx";
+import SocialTradingHub from "./components/SocialTradingHub.jsx";
+import PaymentsHub from "./components/PaymentsHub.jsx";
+import LandingHero from "./components/LandingHero.jsx";
+import AIInsights from "./components/AIInsights.jsx";
+import DemoGuide from "./components/DemoGuide.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
+import LanguageToggle from "./components/LanguageToggle.jsx";
+import { testSentryError } from "./sentry.js";
+import { coinGeckoAPI } from "./utils/coinGeckoAPI.js";
+
+// Aptos Configuration
+const APTOS_CONFIG = {
+  apiKey: import.meta.env.VITE_APTOS_API_KEY,
+  nodeUrl: import.meta.env.VITE_APTOS_NODE_URL,
+  indexerUrl: import.meta.env.VITE_APTOS_INDEXER_URL,
+  account: import.meta.env.VITE_APTOS_ACCOUNT,
+};
+
+// Test Aptos API Connection
+const testAptosConnection = async () => {
+  try {
+    const response = await fetch(`${APTOS_CONFIG.nodeUrl}`, {
+      headers: {
+        Authorization: `Bearer ${APTOS_CONFIG.apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      console.log("✅ Aptos API Connected Successfully!");
+      return true;
+    } else {
+      console.warn("⚠️ Aptos API responded with status:", response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ Aptos API Connection Error:", error);
+    return false;
+  }
+};
+
+// TabButton Component
+const TabButton = ({ id, label, icon, isActive, onClick, isDarkMode }) => (
+  <button
+    onClick={() => onClick(id)}
+    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+      isActive
+        ? "bg-blue-600 text-white shadow-lg transform scale-105"
+        : isDarkMode
+        ? "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:scale-105"
+        : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105"
+    }`}
+  >
+    <span className="text-lg">{icon}</span>
+    <span>{label}</span>
+  </button>
+);
 
 function App() {
-  const { account, connect, disconnect, connecting, connected } = useWallet();
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [isLoading, setIsLoading] = useState(false);
-  const [walletError, setWalletError] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState("landing");
+  const [activeTab, setActiveTab] = useState("home");
+  const [isDemoActive, setIsDemoActive] = useState(false);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [aptosConnected, setAptosConnected] = useState(false);
 
-  // Enhanced wallet detection and auto-connection
+  // Test Aptos API connection on app load
   useEffect(() => {
-    const checkWalletStatus = async () => {
-      console.log("🔍 Checking wallet status...");
-
-      if (window.aptos) {
-        console.log("✅ Petra wallet detected");
-
-        try {
-          const account = await window.aptos.account();
-          if (account) {
-            console.log("✅ Wallet already connected:", account.address);
-          }
-        } catch (error) {
-          console.log("⏳ Wallet detected but not connected");
-        }
-      } else {
-        console.log("❌ Petra wallet not found");
-        setWalletError("Please install Petra wallet extension");
-      }
+    const checkAptosConnection = async () => {
+      const connected = await testAptosConnection();
+      setAptosConnected(connected);
     };
 
-    checkWalletStatus();
-    const timer = setTimeout(checkWalletStatus, 1000);
-
-    return () => clearTimeout(timer);
+    checkAptosConnection();
   }, []);
 
-  const truncateAddress = (address) => {
-    if (!address) return "";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  // Show app features only after wallet connection or demo mode
+  const showAppFeatures = isWalletConnected || isDemoActive;
 
-  const handleConnect = async () => {
-    try {
-      setWalletError("");
-      console.log("🔄 Attempting wallet connection...");
-
-      if (!window.aptos) {
-        throw new Error(
-          "Petra wallet extension not found. Please install Petra wallet."
-        );
-      }
-
-      await connect("Petra");
-      console.log("✅ Wallet connected successfully");
-      setCurrentPage("dashboard");
-    } catch (error) {
-      console.error("❌ Wallet connection failed:", error);
-      setWalletError(`Connection failed: ${error.message}`);
-
-      if (error.message.includes("User rejected")) {
-        setWalletError(
-          "Connection cancelled. Please try again and approve the connection."
-        );
-      } else if (error.message.includes("not found")) {
-        setWalletError(
-          "Please install Petra wallet extension and refresh the page."
-        );
-      } else {
-        setWalletError(`Connection failed: ${error.message}`);
-      }
+  const handleConnectWallet = () => {
+    setIsWalletConnected(true);
+    if (activeTab === "home") {
+      setActiveTab("vault"); // Switch to vault after connecting
     }
   };
 
-  const handleDemoMode = () => {
-    setDemoMode(true);
-    setCurrentPage("dashboard");
-    console.log("🎭 Demo mode activated");
+  const handleDemoStart = () => {
+    setIsDemoActive(true);
+    setActiveTab("home"); // Start demo from home
   };
-
-  const handleDisconnect = () => {
-    if (demoMode) {
-      setDemoMode(false);
-      setCurrentPage("landing");
-    } else {
-      disconnect();
-      setCurrentPage("landing");
-    }
-  };
-
-  const TabButton = ({ id, label, icon, isActive, onClick }) => (
-    <button
-      onClick={() => onClick(id)}
-      className={`group relative flex items-center space-x-3 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-        isActive
-          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105"
-          : "text-gray-300 hover:text-white hover:bg-white/10 border border-white/20 hover:border-white/40"
-      }`}
-    >
-      <span className="text-xl">{icon}</span>
-      <span className="font-semibold">{label}</span>
-    </button>
-  );
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-purple-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-300/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 w-full">
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/30 to-slate-900/50"></div>
-
+    <div
+      className={`min-h-screen transition-colors duration-300 ${
+        isDarkMode
+          ? "bg-gradient-to-br from-gray-900 to-gray-800"
+          : "bg-gradient-to-br from-slate-50 to-blue-50"
+      }`}
+    >
       {/* Header */}
-      <header className="relative z-10 backdrop-blur-sm bg-white/5 border-b border-white/10 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="logo-container logo-glow logo-pulse w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center p-3 hover:bg-white/20 transition-all duration-300 shadow-lg">
-                <img
-                  src={VealthXLogo}
-                  alt="VealthX Logo"
-                  className="w-full h-full object-contain drop-shadow-lg filter brightness-110"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                />
-                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hidden items-center justify-center">
-                  <span className="text-xl font-bold text-white">V</span>
-                </div>
+      <header
+        className={`backdrop-blur-sm border-b sticky top-0 z-50 transition-colors duration-300 ${
+          isDarkMode
+            ? "bg-gray-800/80 border-gray-700"
+            : "bg-white/80 border-gray-200"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">V</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {APP_NAME}
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  VealthX
                 </h1>
-                <p className="text-purple-200 text-sm">
-                  Next-Gen DeFi Protocol
+                <p
+                  className={`text-sm transition-colors duration-300 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  Real World Asset DeFi Protocol
                 </p>
               </div>
             </div>
-
             <div className="flex items-center space-x-4">
-              {account || demoMode ? (
-                <div className="flex items-center space-x-4">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-white font-mono text-sm">
-                        {demoMode ? "Demo Mode" : truncateAddress(account.address)}
-                      </span>
-                    </div>
+              <LanguageToggle
+                currentLanguage={currentLanguage}
+                onLanguageChange={setCurrentLanguage}
+                isDarkMode={isDarkMode}
+              />
+              <ThemeToggle
+                isDarkMode={isDarkMode}
+                onThemeChange={setIsDarkMode}
+              />
+
+              {/* Development API Test Buttons */}
+              {import.meta.env.DEV && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => coinGeckoAPI.testConnection()}
+                    className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors"
+                    title="Test CoinGecko API"
+                  >
+                    🪙 API
+                  </button>
+                  <button
+                    onClick={testSentryError}
+                    className="text-xs px-2 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 transition-colors"
+                    title="Test Sentry Error Tracking"
+                  >
+                    🐛 Sentry
+                  </button>
+                </div>
+              )}
+
+              {/* Aptos API Status Indicator */}
+              <div
+                className={`flex items-center space-x-2 text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    aptosConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
+                  }`}
+                ></div>
+                <span className="hidden sm:inline">
+                  {aptosConnected ? "Aptos API Connected" : "Aptos API Offline"}
+                </span>
+              </div>
+
+              {!isWalletConnected && (
+                <>
+                  <button
+                    onClick={handleDemoStart}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <span>🎬</span>
+                    <span>
+                      {currentLanguage === "en" ? "Demo Tour" : "डेमो टूर"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleConnectWallet}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                  >
+                    {currentLanguage === "en"
+                      ? "Connect Wallet"
+                      : "वॉलेट कनेक्ट करें"}
+                  </button>
+                </>
+              )}
+
+              {isWalletConnected && (
+                <>
+                  <div
+                    className={`hidden sm:flex items-center space-x-2 text-sm ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>Aptos Mainnet</span>
                   </div>
-                  <button
-                    onClick={handleDisconnect}
-                    className="bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-white border border-red-500/30 px-4 py-2 rounded-xl font-medium transition-all duration-200"
+                  <div
+                    className={`px-3 py-2 rounded-lg border ${
+                      isDarkMode
+                        ? "bg-gray-700 border-gray-600 text-green-400"
+                        : "bg-green-50 border-green-200 text-green-700"
+                    }`}
                   >
-                    {demoMode ? "Exit Demo" : "Disconnect"}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    onClick={handleConnect}
-                    disabled={connecting}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {connecting ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Connecting...</span>
-                      </div>
-                    ) : (
-                      "Connect Wallet"
-                    )}
-                  </button>
-                  {walletError && (
-                    <p className="text-red-400 text-xs text-center max-w-48">
-                      {walletError}
-                    </p>
-                  )}
-                </div>
+                    <span className="text-sm font-medium">
+                      {currentLanguage === "en"
+                        ? "Wallet Connected"
+                        : "वॉलेट कनेक्टेड"}
+                    </span>
+                  </div>
+                </>
               )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 w-full flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-          {currentPage === "landing" ? (
-            <LandingPage 
-              handleConnect={handleConnect}
-              handleDemoMode={handleDemoMode}
-              connecting={connecting}
-              walletError={walletError}
-            />
-          ) : (account || demoMode) ? (
-            <div className="space-y-8 w-full max-w-6xl mx-auto">
-              {/* Navigation Tabs */}
-              <div className="flex flex-wrap justify-center gap-4">
-                <TabButton
-                  id="dashboard"
-                  label="Dashboard"
-                  icon="📊"
-                  isActive={activeTab === "dashboard"}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="deposit"
-                  label="Deposit"
-                  icon="💰"
-                  isActive={activeTab === "deposit"}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="borrow"
-                  label="Borrow"
-                  icon="🏦"
-                  isActive={activeTab === "borrow"}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="vault"
-                  label="Vault"
-                  icon="🔐"
-                  isActive={activeTab === "vault"}
-                  onClick={setActiveTab}
-                />
-                <TabButton
-                  id="analytics"
-                  label="Analytics"
-                  icon="📈"
-                  isActive={activeTab === "analytics"}
-                  onClick={setActiveTab}
-                />
-              </div>
-
-              {/* Tab Content */}
-              <div className="mt-8">
-                {activeTab === "dashboard" && (
-                  <DemoDashboard demoMode={demoMode} />
-                )}
-
-                {activeTab === "deposit" && <DepositForm />}
-                {activeTab === "borrow" && <BorrowForm />}
-                {activeTab === "vault" && <VaultViewer />}
-
-                {activeTab === "analytics" && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <PoolStatsEnhanced />
-                    <YieldChart />
-                  </div>
-                )}
-              </div>
+      {/* Navigation - Only show when wallet connected or demo active */}
+      {showAppFeatures && (
+        <nav
+          className={`backdrop-blur-sm border-b transition-colors duration-300 ${
+            isDarkMode
+              ? "bg-gray-800/50 border-gray-700"
+              : "bg-white/50 border-gray-100"
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex space-x-2 py-4 overflow-x-auto">
+              <TabButton
+                id="home"
+                label={currentLanguage === "en" ? "Home" : "होम"}
+                icon="🏠"
+                isActive={activeTab === "home"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="vault"
+                label={currentLanguage === "en" ? "Vault" : "वॉल्ट"}
+                icon="🏦"
+                isActive={activeTab === "vault"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="deposit"
+                label={currentLanguage === "en" ? "Deposit" : "जमा"}
+                icon="💰"
+                isActive={activeTab === "deposit"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="borrow"
+                label={currentLanguage === "en" ? "Borrow" : "उधार"}
+                icon="📈"
+                isActive={activeTab === "borrow"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="trading"
+                label={currentLanguage === "en" ? "Trading" : "ट्रेडिंग"}
+                icon="📊"
+                isActive={activeTab === "trading"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="social"
+                label={currentLanguage === "en" ? "Social" : "सोशल"}
+                icon="👥"
+                isActive={activeTab === "social"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="payments"
+                label={currentLanguage === "en" ? "Payments" : "पेमेंट"}
+                icon="💸"
+                isActive={activeTab === "payments"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
+              <TabButton
+                id="analytics"
+                label={currentLanguage === "en" ? "Analytics" : "एनालिटिक्स"}
+                icon="📊"
+                isActive={activeTab === "analytics"}
+                onClick={setActiveTab}
+                isDarkMode={isDarkMode}
+              />
             </div>
-          ) : null}
-        </div>
+          </div>
+        </nav>
+      )}
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === "home" && <LandingHero />}
+        {activeTab === "vault" && <VaultViewer />}
+        {activeTab === "deposit" && <DepositForm />}
+        {activeTab === "borrow" && <BorrowForm />}
+        {activeTab === "trading" && <TradingDashboard />}
+        {activeTab === "social" && <SocialTradingHub />}
+        {activeTab === "payments" && <PaymentsHub />}
+        {activeTab === "analytics" && <Analytics />}
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 mt-16 backdrop-blur-sm bg-white/5 border-t border-white/10 w-full">
+      <footer className="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-purple-300">
-              © 2025 VealthX. Built on Aptos blockchain.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">VealthX</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Democratizing access to Real World Assets through innovative
+                DeFi solutions on Aptos.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Protocol</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Vault System
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    RWA Trading
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Yield Farming
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Resources</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    API Reference
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Community</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Discord
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Twitter
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-blue-600 transition-colors">
+                    Medium
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 pt-6 mt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center">
+              <p className="text-sm text-gray-600">
+                © 2024 VealthX. Built for CTRL+MOVE Hackathon.
+              </p>
+              <div className="flex space-x-4 mt-4 sm:mt-0">
+                <a
+                  href="#"
+                  className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Privacy
+                </a>
+                <a
+                  href="#"
+                  className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Terms
+                </a>
+                <a
+                  href="#"
+                  className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Security
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
+
+      {/* AI Insights Floating Panel */}
+      <AIInsights />
+
+      {/* Demo Guide Modal */}
+      <DemoGuide
+        isActive={isDemoActive}
+        onClose={() => setIsDemoActive(false)}
+        onTabChange={setActiveTab}
+      />
     </div>
   );
 }
