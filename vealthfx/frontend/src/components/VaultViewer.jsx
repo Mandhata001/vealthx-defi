@@ -2,19 +2,100 @@ import React, { useState, useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { aptos, CONTRACT_ADDRESS, fromOctas } from "../lib/aptos";
 
-export default function VaultViewer() {
-  const { account } = useWallet();
+export default function VaultViewer({
+  demoMode = false,
+  walletConnected,
+  account,
+}) {
+  const { account: walletAccount } = useWallet();
+  const currentAccount = account || walletAccount;
   const [vault, setVault] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [selectedVault, setSelectedVault] = useState("real-estate");
+
+  // RWA Vault Types
+  const rwaVaults = [
+    {
+      id: "real-estate",
+      name: "Manhattan Real Estate",
+      icon: "🏢",
+      description: "Commercial property in prime NYC location",
+      apy: "12.5%",
+      tvl: "$2.4M",
+      minDeposit: "$100",
+      riskLevel: "Medium",
+      color: "from-blue-500/20 to-cyan-500/20",
+      borderColor: "border-blue-500/30",
+      textColor: "text-blue-400",
+    },
+    {
+      id: "gold",
+      name: "Physical Gold Vault",
+      icon: "🥇",
+      description: "Tokenized physical gold reserves",
+      apy: "8.3%",
+      tvl: "$1.8M",
+      minDeposit: "$50",
+      riskLevel: "Low",
+      color: "from-yellow-500/20 to-orange-500/20",
+      borderColor: "border-yellow-500/30",
+      textColor: "text-yellow-400",
+    },
+    {
+      id: "art",
+      name: "Contemporary Art",
+      icon: "🎨",
+      description: "Fractionalized Picasso collection",
+      apy: "23.7%",
+      tvl: "$987K",
+      minDeposit: "$250",
+      riskLevel: "High",
+      color: "from-purple-500/20 to-pink-500/20",
+      borderColor: "border-purple-500/30",
+      textColor: "text-purple-400",
+    },
+    {
+      id: "copy-trading",
+      name: "Copy Trading Vault",
+      icon: "👥",
+      description: "Follow top performing traders",
+      apy: "15.2%",
+      tvl: "$1.2M",
+      minDeposit: "$500",
+      riskLevel: "Medium",
+      color: "from-emerald-500/20 to-green-500/20",
+      borderColor: "border-emerald-500/30",
+      textColor: "text-emerald-400",
+    },
+  ];
 
   const fetchVaultData = async () => {
-    if (!account || !CONTRACT_ADDRESS) return;
+    if (!currentAccount || !CONTRACT_ADDRESS) {
+      if (demoMode) {
+        // Mock vault data for demo mode
+        setVault({
+          data: {
+            collateral: "150000000000", // 1500 APT in octas
+            borrowed: "50000000000", // 500 APT in octas
+            lastUpdate: Date.now(),
+          },
+        });
+        setLastUpdate(new Date().toLocaleTimeString());
+        return;
+      }
+      return;
+    }
 
     setLoading(true);
     try {
+      const accountAddress = getAccountAddress(currentAccount);
+      if (!accountAddress) {
+        throw new Error("Invalid account address");
+      }
+
       const vaultResource = await aptos.getAccountResource({
-        accountAddress: account.address,
+        accountAddress: accountAddress,
         resourceType: `${CONTRACT_ADDRESS}::vault::Vault`,
       });
 
@@ -35,228 +116,126 @@ export default function VaultViewer() {
     // Auto-refresh every 10 seconds
     const interval = setInterval(fetchVaultData, 10000);
     return () => clearInterval(interval);
-  }, [account]);
+  }, [currentAccount, demoMode]);
 
-  if (!account) {
+  if (!walletConnected && !demoMode) {
     return (
-      <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
-        <div className="text-center py-8">
-          <div className="w-16 h-16 bg-gray-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">🔐</span>
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-gradient-to-br from-gray-900/50 via-blue-900/30 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 shadow-2xl">
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">🔐</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">
+              Wallet Required
+            </h3>
+            <p className="text-gray-400">
+              Connect your wallet to view vault details
+            </p>
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Wallet Required</h3>
-          <p className="text-gray-300">
-            Connect your wallet to view vault details
-          </p>
         </div>
       </div>
     );
   }
 
-  const collateral = vault ? fromOctas(vault.collateral) : "0";
-  const borrowed = vault ? fromOctas(vault.borrowed) : "0";
-  const healthRatio =
-    vault && parseFloat(borrowed) > 0
-      ? ((parseFloat(collateral) / parseFloat(borrowed)) * 100).toFixed(1)
-      : "∞";
-
-  const getHealthStatus = () => {
-    if (healthRatio === "∞")
-      return {
-        color: "text-green-400",
-        bg: "bg-green-500/20 border-green-500/30",
-        status: "Excellent",
-      };
-    const ratio = parseFloat(healthRatio);
-    if (ratio > 300)
-      return {
-        color: "text-green-400",
-        bg: "bg-green-500/20 border-green-500/30",
-        status: "Excellent",
-      };
-    if (ratio > 200)
-      return {
-        color: "text-blue-400",
-        bg: "bg-blue-500/20 border-blue-500/30",
-        status: "Good",
-      };
-    if (ratio > 150)
-      return {
-        color: "text-yellow-400",
-        bg: "bg-yellow-500/20 border-yellow-500/30",
-        status: "Caution",
-      };
-    return {
-      color: "text-red-400",
-      bg: "bg-red-500/20 border-red-500/30",
-      status: "Risk",
-    };
-  };
-
-  const healthStatus = getHealthStatus();
+  const selectedVaultData = rwaVaults.find((v) => v.id === selectedVault);
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center">
-            <span className="text-2xl">🏛️</span>
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">Your Vault</h3>
-            <p className="text-purple-200">Real-time position overview</p>
-          </div>
-        </div>
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* RWA Vault Selection */}
+      <div className="bg-gradient-to-br from-gray-900/50 via-blue-900/30 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 shadow-2xl">
+        <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <span className="mr-3">🏦</span>
+          Real World Asset Vaults
+        </h2>
 
-        <button
-          onClick={fetchVaultData}
-          disabled={loading}
-          className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl transition-colors border border-white/20 hover:border-white/40"
-          title="Refresh vault data"
-        >
-          <span className={`text-lg ${loading ? "animate-spin" : ""}`}>🔄</span>
-        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {rwaVaults.map((vault) => (
+            <button
+              key={vault.id}
+              onClick={() => setSelectedVault(vault.id)}
+              className={`p-4 rounded-2xl border transition-all duration-300 transform hover:scale-105 ${
+                selectedVault === vault.id
+                  ? `bg-gradient-to-br ${vault.color} ${vault.borderColor} shadow-lg`
+                  : "bg-gray-800/50 border-gray-700/50 hover:bg-gray-700/50"
+              }`}
+            >
+              <div className="text-3xl mb-2">{vault.icon}</div>
+              <div className="text-sm font-bold text-white">{vault.name}</div>
+              <div
+                className={`text-xs ${
+                  selectedVault === vault.id ? vault.textColor : "text-gray-400"
+                }`}
+              >
+                APY: {vault.apy}
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-white/20 rounded w-3/4"></div>
-            <div className="h-4 bg-white/20 rounded w-1/2"></div>
-            <div className="h-4 bg-white/20 rounded w-2/3"></div>
+      {/* Selected Vault Details */}
+      <div
+        className={`bg-gradient-to-br ${selectedVaultData.color} backdrop-blur-xl border ${selectedVaultData.borderColor} rounded-3xl p-8 shadow-2xl`}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="text-4xl">{selectedVaultData.icon}</div>
+            <div>
+              <h3 className="text-2xl font-bold text-white">
+                {selectedVaultData.name}
+              </h3>
+              <p className="text-gray-300">{selectedVaultData.description}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div
+              className={`text-2xl font-bold ${selectedVaultData.textColor}`}
+            >
+              {selectedVaultData.apy}
+            </div>
+            <div className="text-sm text-gray-400">Current APY</div>
           </div>
         </div>
-      ) : !vault ? (
-        <div className="text-center py-8">
-          <div className="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">⚠️</span>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-black/20 rounded-2xl p-4 border border-white/10">
+            <div className="text-sm text-gray-400">Total Value Locked</div>
+            <div className="text-xl font-bold text-white">
+              {selectedVaultData.tvl}
+            </div>
           </div>
-          <h4 className="text-lg font-semibold text-white mb-2">
-            No Vault Found
-          </h4>
-          <p className="text-gray-300 mb-4">
-            Initialize your vault by making your first deposit
-          </p>
-          <button
-            onClick={fetchVaultData}
-            className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-xl transition-colors"
-          >
-            Check Again
+          <div className="bg-black/20 rounded-2xl p-4 border border-white/10">
+            <div className="text-sm text-gray-400">Minimum Deposit</div>
+            <div className="text-xl font-bold text-white">
+              {selectedVaultData.minDeposit}
+            </div>
+          </div>
+          <div className="bg-black/20 rounded-2xl p-4 border border-white/10">
+            <div className="text-sm text-gray-400">Risk Level</div>
+            <div
+              className={`text-xl font-bold ${
+                selectedVaultData.riskLevel === "Low"
+                  ? "text-green-400"
+                  : selectedVaultData.riskLevel === "Medium"
+                  ? "text-yellow-400"
+                  : "text-red-400"
+              }`}
+            >
+              {selectedVaultData.riskLevel}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex space-x-4">
+          <button className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105">
+            🏦 Deposit
+          </button>
+          <button className="flex-1 bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+            📤 Withdraw
           </button>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-green-400">💰</span>
-                <span className="text-green-300 font-semibold">Collateral</span>
-              </div>
-              <p className="text-white text-2xl font-bold">{collateral} APT</p>
-              <p className="text-green-200 text-sm">
-                ≈ ${(parseFloat(collateral) * 8.5).toFixed(2)}
-              </p>
-            </div>
-
-            <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-purple-400">🏦</span>
-                <span className="text-purple-300 font-semibold">Borrowed</span>
-              </div>
-              <p className="text-white text-2xl font-bold">{borrowed} APT</p>
-              <p className="text-purple-200 text-sm">
-                ≈ ${(parseFloat(borrowed) * 8.5).toFixed(2)}
-              </p>
-            </div>
-          </div>
-
-          {/* Health Ratio */}
-          <div className={`border rounded-2xl p-4 ${healthStatus.bg}`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-white font-semibold">Health Ratio</span>
-                <span
-                  className={`px-2 py-1 rounded-lg text-xs font-medium ${healthStatus.bg}`}
-                >
-                  {healthStatus.status}
-                </span>
-              </div>
-              <span className={`font-bold text-2xl ${healthStatus.color}`}>
-                {healthRatio}%
-              </span>
-            </div>
-
-            {healthRatio !== "∞" && (
-              <div className="space-y-2">
-                <div className="w-full bg-gray-700 rounded-full h-3">
-                  <div
-                    className={`h-3 rounded-full transition-all duration-500 ${
-                      parseFloat(healthRatio) > 300
-                        ? "bg-green-400"
-                        : parseFloat(healthRatio) > 200
-                        ? "bg-blue-400"
-                        : parseFloat(healthRatio) > 150
-                        ? "bg-yellow-400"
-                        : "bg-red-400"
-                    }`}
-                    style={{
-                      width: `${Math.min(parseFloat(healthRatio) / 5, 100)}%`,
-                    }}
-                  ></div>
-                </div>
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>Liquidation: 150%</span>
-                  <span>Safe: 300%+</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Vault Stats */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <p className="text-gray-300 text-sm">Available to Borrow</p>
-              <p className="text-white text-lg font-bold">
-                {(parseFloat(collateral) * 0.67 - parseFloat(borrowed)).toFixed(
-                  3
-                )}{" "}
-                APT
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-gray-300 text-sm">Utilization</p>
-              <p className="text-white text-lg font-bold">
-                {parseFloat(collateral) > 0
-                  ? (
-                      (parseFloat(borrowed) / parseFloat(collateral)) *
-                      100
-                    ).toFixed(1)
-                  : "0"}
-                %
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button className="bg-green-500/20 hover:bg-green-500/30 text-green-300 py-3 rounded-xl transition-colors font-semibold">
-              + Deposit More
-            </button>
-            <button className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 py-3 rounded-xl transition-colors font-semibold">
-              ⤴️ Withdraw
-            </button>
-          </div>
-
-          {/* Last Update */}
-          {lastUpdate && (
-            <div className="text-center text-gray-400 text-xs">
-              Last updated: {lastUpdate}
-            </div>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

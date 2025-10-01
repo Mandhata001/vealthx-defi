@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { buildBorrowPayload, getExplorerUrl, submitSponsoredTransaction, GAS_STATION_ENABLED } from "../lib/aptos";
+import {
+  buildBorrowPayload,
+  getExplorerUrl,
+  submitSponsoredTransaction,
+  GAS_STATION_ENABLED,
+} from "../lib/aptos";
 
 export default function BorrowForm() {
   const { account, signAndSubmitTransaction } = useWallet();
@@ -13,14 +18,17 @@ export default function BorrowForm() {
   const collateralAmount = 0.5; // APT
   const maxBorrowAmount = (collateralAmount * 0.67).toFixed(3); // 67% of collateral value
   const currentBorrowedAmount = 0.1;
-  const healthRatio = ((collateralAmount / (currentBorrowedAmount + parseFloat(amount || 0))) * 100).toFixed(1);
+  const healthRatio = (
+    (collateralAmount / (currentBorrowedAmount + parseFloat(amount || 0))) *
+    100
+  ).toFixed(1);
 
   const handleBorrow = async () => {
     if (!account) {
       alert("Please connect your wallet first");
       return;
     }
-    
+
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       alert("Please enter a valid amount greater than 0");
       return;
@@ -38,24 +46,26 @@ export default function BorrowForm() {
     try {
       const payload = buildBorrowPayload(amount);
       console.log("Borrow payload:", payload);
-      
+
       // Use Gas Station for sponsored transactions
       let response;
       if (GAS_STATION_ENABLED) {
         console.log("🚀 Using Gas Station for sponsored transaction");
-        response = await submitSponsoredTransaction({ account, signAndSubmitTransaction }, payload);
+        response = await submitSponsoredTransaction(
+          { account, signAndSubmitTransaction },
+          payload
+        );
       } else {
         response = await signAndSubmitTransaction(payload);
       }
-      
+
       console.log("Transaction response:", response);
-      
+
       setLastTx(response.hash);
       setSuccess(true);
       setAmount("");
-      
+
       setTimeout(() => setSuccess(false), 5000);
-      
     } catch (error) {
       console.error("Transaction failed:", error);
       alert(`Transaction failed: ${error.message}`);
@@ -71,13 +81,15 @@ export default function BorrowForm() {
   };
 
   const getHealthRatioBg = () => {
-    if (parseFloat(healthRatio) > 200) return "bg-green-500/20 border-green-500/30";
-    if (parseFloat(healthRatio) > 150) return "bg-yellow-500/20 border-yellow-500/30";
+    if (parseFloat(healthRatio) > 200)
+      return "bg-green-500/20 border-green-500/30";
+    if (parseFloat(healthRatio) > 150)
+      return "bg-yellow-500/20 border-yellow-500/30";
     return "bg-red-500/20 border-red-500/30";
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
+    <div className="glass-card p-8 shadow-xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
@@ -103,8 +115,12 @@ export default function BorrowForm() {
           <div className="flex items-center space-x-2">
             <span className="text-purple-400 text-xl">✅</span>
             <div>
-              <p className="text-purple-300 font-semibold">Borrow Successful!</p>
-              <p className="text-purple-200 text-sm">Assets transferred to your wallet</p>
+              <p className="text-purple-300 font-semibold">
+                Borrow Successful!
+              </p>
+              <p className="text-purple-200 text-sm">
+                Assets transferred to your wallet
+              </p>
             </div>
           </div>
         </div>
@@ -117,11 +133,15 @@ export default function BorrowForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-blue-200 text-sm">Deposited</p>
-              <p className="text-white font-bold text-lg">{collateralAmount} APT</p>
+              <p className="text-white font-bold text-lg">
+                {collateralAmount} APT
+              </p>
             </div>
             <div>
               <p className="text-blue-200 text-sm">Max Borrow</p>
-              <p className="text-white font-bold text-lg">{maxBorrowAmount} APT</p>
+              <p className="text-white font-bold text-lg">
+                {maxBorrowAmount} APT
+              </p>
             </div>
           </div>
         </div>
@@ -160,16 +180,23 @@ export default function BorrowForm() {
             </span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2">
-            <div 
+            <div
               className={`h-2 rounded-full transition-all duration-300 ${
-                parseFloat(healthRatio) > 200 ? 'bg-green-400' :
-                parseFloat(healthRatio) > 150 ? 'bg-yellow-400' : 'bg-red-400'
+                parseFloat(healthRatio) > 200
+                  ? "bg-green-400"
+                  : parseFloat(healthRatio) > 150
+                  ? "bg-yellow-400"
+                  : "bg-red-400"
               }`}
-              style={{ width: `${Math.min(parseFloat(healthRatio) / 3, 100)}%` }}
+              style={{
+                width: `${Math.min(parseFloat(healthRatio) / 3, 100)}%`,
+              }}
             ></div>
           </div>
           <p className="text-gray-300 text-xs mt-2">
-            {parseFloat(healthRatio) > 150 ? "Safe to borrow" : "⚠️ Low health ratio"}
+            {parseFloat(healthRatio) > 150
+              ? "Safe to borrow"
+              : "⚠️ Low health ratio"}
           </p>
         </div>
 
@@ -200,7 +227,7 @@ export default function BorrowForm() {
           ) : parseFloat(healthRatio) < 150 ? (
             "Health Ratio Too Low"
           ) : (
-            `Borrow ${amount || '0'} APT`
+            `Borrow ${amount || "0"} APT`
           )}
         </button>
 

@@ -42,6 +42,7 @@ export default {
         "slide-in-up": "slide-in-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        marquee: "marquee 30s linear infinite",
       },
       keyframes: {
         blob: {
@@ -110,6 +111,10 @@ export default {
             opacity: "1",
             transform: "scale(1)",
           },
+        },
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
         },
       },
     },

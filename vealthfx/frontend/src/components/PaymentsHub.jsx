@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { aptos, toOctas, fromOctas, getExplorerUrl } from "../lib/aptos";
 import {
   BarChart,
   Bar,
@@ -11,14 +13,18 @@ import {
   Line,
 } from "recharts";
 
-const PaymentsHub = ({ demoMode = false }) => {
+const PaymentsHub = ({ demoMode = false, walletConnected, account }) => {
+  const { account: walletAccount, signAndSubmitTransaction } = useWallet();
+  const currentAccount = account || walletAccount;
   const [activePaymentTab, setActivePaymentTab] = useState("send");
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [globalStats, setGlobalStats] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [txHash, setTxHash] = useState("");
   const [sendForm, setSendForm] = useState({
     recipient: "",
     amount: "",
-    currency: "USDC",
+    currency: "APT",
     memo: "",
     country: "US",
   });
@@ -96,9 +102,62 @@ const PaymentsHub = ({ demoMode = false }) => {
     { code: "BR", name: "Brazil", flag: "🇧🇷", rate: 5.1 },
   ];
 
-  const handleSendPayment = () => {
-    console.log("Sending payment:", sendForm);
-    // In real implementation, this would call the smart contract
+  const handleSendPayment = async () => {
+    if (!walletConnected || !currentAccount) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    if (!sendForm.recipient || !sendForm.amount) {
+      alert("Please fill in recipient and amount");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const transaction = {
+        type: "entry_function_payload",
+        function: "0x1::aptos_account::transfer",
+        arguments: [sendForm.recipient, toOctas(sendForm.amount)],
+        type_arguments: [],
+      };
+
+      const pendingTransaction = await signAndSubmitTransaction(transaction);
+      setTxHash(pendingTransaction.hash);
+
+      // Add to history
+      const newPayment = {
+        id: Date.now(),
+        type: "sent",
+        recipient: sendForm.recipient,
+        amount: parseFloat(sendForm.amount),
+        currency: sendForm.currency,
+        status: "completed",
+        memo: sendForm.memo,
+        timestamp: new Date().toLocaleString(),
+        fee: 0.001,
+        country: sendForm.country,
+        txHash: pendingTransaction.hash,
+      };
+
+      setPaymentHistory((prev) => [newPayment, ...prev]);
+
+      // Reset form
+      setSendForm({
+        recipient: "",
+        amount: "",
+        currency: "APT",
+        memo: "",
+        country: "US",
+      });
+
+      alert("Payment sent successfully!");
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Payment failed: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFormChange = (field, value) => {
@@ -107,12 +166,55 @@ const PaymentsHub = ({ demoMode = false }) => {
 
   const calculateFee = (amount) => {
     const baseRate = 0.001; // 0.1%
-    const baseFee = 0.01; // 0.01 USDC
+    const baseFee = 0.01; // 0.01 APT
     return (parseFloat(amount) * baseRate + baseFee).toFixed(4);
   };
 
+  // Show wallet connection prompt if not connected and not in demo mode
+  if (!walletConnected && !demoMode) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-gradient-to-br from-gray-900/50 via-blue-900/30 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 shadow-2xl text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">💳</span>
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-4">
+            Connect Wallet for Payments
+          </h3>
+          <p className="text-gray-400 mb-6">
+            Connect your Aptos wallet to send instant, low-cost payments
+            worldwide
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="text-2xl mb-2">⚡</div>
+              <div className="text-sm text-white font-semibold">
+                Instant Transfer
+              </div>
+              <div className="text-xs text-gray-400">Under 5 seconds</div>
+            </div>
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="text-2xl mb-2">💰</div>
+              <div className="text-sm text-white font-semibold">Low Fees</div>
+              <div className="text-xs text-gray-400">
+                ~$0.01 per transaction
+              </div>
+            </div>
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="text-2xl mb-2">🌍</div>
+              <div className="text-sm text-white font-semibold">
+                Global Reach
+              </div>
+              <div className="text-xs text-gray-400">200+ countries</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8 py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>

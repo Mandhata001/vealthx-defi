@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { aptos, toOctas, fromOctas } from "../lib/aptos";
+import { getAccountAddress } from "../utils/addressUtils.js";
 import {
   AreaChart,
   Area,
@@ -11,9 +14,179 @@ import {
   Bar,
 } from "recharts";
 
-const TradingDashboard = ({ demoMode = false }) => {
-  const [orderBook, setOrderBook] = useState({ bids: [], asks: [] });
-  const [recentTrades, setRecentTrades] = useState([]);
+const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
+  const { account: walletAccount, signAndSubmitTransaction } = useWallet();
+  const currentAccount = account || walletAccount;
+  const [orderBook, setOrderBook] = useState({
+    buyOrders: [
+      { price: 1.2345, amount: 1000, total: 1234.5 },
+      { price: 1.234, amount: 1500, total: 1851.0 },
+      { price: 1.2335, amount: 2000, total: 2467.0 },
+      { price: 1.233, amount: 800, total: 986.4 },
+    ],
+    sellOrders: [
+      { price: 1.235, amount: 1200, total: 1482.0 },
+      { price: 1.2355, amount: 900, total: 1111.95 },
+      { price: 1.236, amount: 1600, total: 1977.6 },
+      { price: 1.2365, amount: 750, total: 927.375 },
+    ],
+  });
+
+  const [selectedPair, setSelectedPair] = useState("APT/USDC");
+  const [orderType, setOrderType] = useState("buy");
+  const [orderAmount, setOrderAmount] = useState("");
+  const [orderPrice, setOrderPrice] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [recentTrades, setRecentTrades] = useState([
+    {
+      id: 1,
+      pair: "APT/USDC",
+      side: "buy",
+      amount: "150.00",
+      price: "12.45",
+      time: "14:23:12",
+      status: "completed",
+    },
+    {
+      id: 2,
+      pair: "APT/USDC",
+      side: "sell",
+      amount: "75.50",
+      price: "12.40",
+      time: "14:21:45",
+      status: "completed",
+    },
+    {
+      id: 3,
+      pair: "APT/USDC",
+      side: "buy",
+      amount: "200.00",
+      price: "12.42",
+      time: "14:18:33",
+      status: "completed",
+    },
+  ]);
+
+  const tradingPairs = [
+    { symbol: "APT/USDC", price: "12.45", change: "+2.34%", volume: "1.2M" },
+    { symbol: "APT/ETH", price: "0.0032", change: "-1.12%", volume: "850K" },
+    { symbol: "APT/BTC", price: "0.00025", change: "+0.89%", volume: "650K" },
+  ];
+
+  const handlePlaceOrder = async () => {
+    if (!currentAccount) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    if (!orderAmount || !orderPrice) {
+      alert("Please enter both amount and price");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Simulate order placement with actual transaction structure
+      const orderValue = parseFloat(orderAmount) * parseFloat(orderPrice);
+
+      if (demoMode) {
+        // Demo mode - just update local state
+        const newOrder = {
+          price: parseFloat(orderPrice),
+          amount: parseFloat(orderAmount),
+          total: orderValue,
+        };
+
+        if (orderType === "buy") {
+          setOrderBook((prev) => ({
+            ...prev,
+            buyOrders: [...prev.buyOrders, newOrder].sort(
+              (a, b) => b.price - a.price
+            ),
+          }));
+        } else {
+          setOrderBook((prev) => ({
+            ...prev,
+            sellOrders: [...prev.sellOrders, newOrder].sort(
+              (a, b) => a.price - b.price
+            ),
+          }));
+        }
+
+        // Add to recent trades
+        const newTrade = {
+          id: Date.now(),
+          pair: selectedPair,
+          side: orderType,
+          amount: orderAmount,
+          price: orderPrice,
+          time: new Date().toLocaleTimeString(),
+          status: "completed",
+        };
+        setRecentTrades((prev) => [newTrade, ...prev.slice(0, 9)]);
+      } else {
+        // Real mode - create actual transaction
+        const accountAddress = getAccountAddress(currentAccount);
+        if (!accountAddress) {
+          throw new Error("Invalid account address");
+        }
+
+        const transaction = {
+          function: "0x1::coin::transfer",
+          type_arguments: ["0x1::aptos_coin::AptosCoin"],
+          arguments: [accountAddress, toOctas(orderValue).toString()],
+        };
+
+        await signAndSubmitTransaction(transaction);
+
+        // Update order book and trades on successful transaction
+        const newOrder = {
+          price: parseFloat(orderPrice),
+          amount: parseFloat(orderAmount),
+          total: orderValue,
+        };
+
+        if (orderType === "buy") {
+          setOrderBook((prev) => ({
+            ...prev,
+            buyOrders: [...prev.buyOrders, newOrder].sort(
+              (a, b) => b.price - a.price
+            ),
+          }));
+        } else {
+          setOrderBook((prev) => ({
+            ...prev,
+            sellOrders: [...prev.sellOrders, newOrder].sort(
+              (a, b) => a.price - b.price
+            ),
+          }));
+        }
+
+        const newTrade = {
+          id: Date.now(),
+          pair: selectedPair,
+          side: orderType,
+          amount: orderAmount,
+          price: orderPrice,
+          time: new Date().toLocaleTimeString(),
+          status: "completed",
+        };
+        setRecentTrades((prev) => [newTrade, ...prev.slice(0, 9)]);
+      }
+
+      // Clear form
+      setOrderAmount("");
+      setOrderPrice("");
+      alert(`${orderType.toUpperCase()} order placed successfully!`);
+    } catch (error) {
+      console.error("Order placement failed:", error);
+      alert("Order placement failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const [marketData, setMarketData] = useState({
     bestBid: 0,
     bestAsk: 0,
@@ -80,7 +253,7 @@ const TradingDashboard = ({ demoMode = false }) => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8 py-6 space-y-6">
       {/* Header with Asset Selector */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
@@ -96,10 +269,14 @@ const TradingDashboard = ({ demoMode = false }) => {
           <select
             value={selectedAsset}
             onChange={(e) => setSelectedAsset(e.target.value)}
-            className="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white"
+            className="glass-card border border-cyan-500/20 rounded-lg px-4 py-2 text-white bg-gray-800/60"
           >
             {assets.map((asset) => (
-              <option key={asset.id} value={asset.id} className="bg-gray-800">
+              <option
+                key={asset.id}
+                value={asset.id}
+                className="bg-gray-800 text-white"
+              >
                 {asset.symbol} - {asset.name}
               </option>
             ))}
@@ -109,15 +286,17 @@ const TradingDashboard = ({ demoMode = false }) => {
 
       {/* Market Data Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+        <div className="glass-card p-4">
           <div className="text-gray-400 text-sm">Last Price</div>
           <div className="text-2xl font-bold text-white">
             ${marketData.lastPrice.toFixed(3)}
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-          <div className="text-gray-400 text-sm">24h Change</div>
+        <div className="glass-card p-4">
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            24h Change
+          </div>
           <div
             className={`text-2xl font-bold ${
               marketData.priceChange24h >= 0 ? "text-green-400" : "text-red-400"
@@ -128,23 +307,29 @@ const TradingDashboard = ({ demoMode = false }) => {
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-          <div className="text-gray-400 text-sm">Best Bid</div>
+        <div className="glass-card p-4">
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            Best Bid
+          </div>
           <div className="text-2xl font-bold text-green-400">
             ${marketData.bestBid.toFixed(3)}
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-          <div className="text-gray-400 text-sm">Best Ask</div>
+        <div className="glass-card p-4">
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            Best Ask
+          </div>
           <div className="text-2xl font-bold text-red-400">
             ${marketData.bestAsk.toFixed(3)}
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-          <div className="text-gray-400 text-sm">24h Volume</div>
-          <div className="text-2xl font-bold text-white">
+        <div className="glass-card p-4">
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            24h Volume
+          </div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">
             ${(marketData.volume24h / 1000000).toFixed(2)}M
           </div>
         </div>
@@ -274,14 +459,57 @@ const TradingDashboard = ({ demoMode = false }) => {
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
           <h3 className="text-xl font-bold text-white mb-4">⚡ Quick Trade</h3>
 
+          {!currentAccount && !demoMode && (
+            <div className="mb-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+              <p className="text-sm text-yellow-300">
+                Connect your wallet to start trading
+              </p>
+            </div>
+          )}
+
           <div className="space-y-4">
             <div className="flex gap-2">
-              <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition-colors">
+              <button
+                className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
+                  orderType === "buy"
+                    ? "bg-green-500 text-white"
+                    : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                }`}
+                onClick={() => setOrderType("buy")}
+              >
                 BUY
               </button>
-              <button className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold transition-colors">
+              <button
+                className={`flex-1 py-2 rounded-lg font-semibold transition-colors ${
+                  orderType === "sell"
+                    ? "bg-red-500 text-white"
+                    : "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                }`}
+                onClick={() => setOrderType("sell")}
+              >
                 SELL
               </button>
+            </div>
+
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">
+                Trading Pair
+              </label>
+              <select
+                value={selectedPair}
+                onChange={(e) => setSelectedPair(e.target.value)}
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white"
+              >
+                {tradingPairs.map((pair) => (
+                  <option
+                    key={pair.symbol}
+                    value={pair.symbol}
+                    className="bg-gray-800"
+                  >
+                    {pair.symbol} - ${pair.price}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -290,29 +518,68 @@ const TradingDashboard = ({ demoMode = false }) => {
               </label>
               <input
                 type="number"
-                placeholder="1.245"
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white"
+                value={orderPrice}
+                onChange={(e) => setOrderPrice(e.target.value)}
+                placeholder="12.45"
+                step="0.01"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-gray-500"
               />
             </div>
 
             <div>
               <label className="block text-gray-400 text-sm mb-2">
-                Quantity
+                Amount (APT)
               </label>
               <input
                 type="number"
+                value={orderAmount}
+                onChange={(e) => setOrderAmount(e.target.value)}
                 placeholder="100"
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white"
+                step="0.01"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-gray-500"
               />
             </div>
 
-            <div className="flex gap-2">
-              <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition-colors">
-                Market Order
-              </button>
-              <button className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg font-semibold transition-colors">
-                Limit Order
-              </button>
+            {orderPrice && orderAmount && (
+              <div className="p-3 bg-white/10 rounded-lg">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Total:</span>
+                  <span className="font-medium text-white">
+                    $
+                    {(parseFloat(orderPrice) * parseFloat(orderAmount)).toFixed(
+                      2
+                    )}{" "}
+                    USDC
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handlePlaceOrder}
+              disabled={
+                isProcessing ||
+                (!currentAccount && !demoMode) ||
+                !orderPrice ||
+                !orderAmount
+              }
+              className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                orderType === "buy"
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isProcessing
+                ? "Processing..."
+                : `${orderType === "buy" ? "Buy" : "Sell"} ${
+                    selectedPair.split("/")[0]
+                  }`}
+            </button>
+
+            <div className="text-xs text-gray-400 text-center">
+              {currentAccount || demoMode
+                ? "Real-time order execution on Aptos blockchain"
+                : "Connect wallet to enable trading"}
             </div>
           </div>
         </div>

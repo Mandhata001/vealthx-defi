@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { aptos, fromOctas } from "../lib/aptos";
+import { formatAddress, getAccountAddress } from "../utils/addressUtils.js";
 import {
   LineChart,
   Line,
@@ -22,11 +25,15 @@ import {
   formatPercentage,
 } from "../utils/coinGeckoAPI.js";
 
-const Analytics = () => {
+const Analytics = ({ demoMode = false, walletConnected, account }) => {
+  const { account: walletAccount } = useWallet();
+  const currentAccount = account || walletAccount;
+
   const [timeRange, setTimeRange] = useState("7d");
   const [cryptoPrices, setCryptoPrices] = useState({});
   const [priceChart, setPriceChart] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [walletBalance, setWalletBalance] = useState(null);
 
   // Fetch real crypto prices on component mount
   useEffect(() => {
@@ -57,6 +64,35 @@ const Analytics = () => {
 
     fetchCryptoPrices();
   }, []);
+
+  // Fetch wallet balance when account changes
+  useEffect(() => {
+    const fetchWalletBalance = async () => {
+      if (currentAccount && !demoMode) {
+        try {
+          const accountAddress = getAccountAddress(currentAccount);
+          if (!accountAddress) {
+            throw new Error("Invalid account address");
+          }
+
+          const balance = await aptos.getAccountAPTAmount({
+            accountAddress: accountAddress,
+          });
+          setWalletBalance(fromOctas(balance));
+        } catch (error) {
+          console.error("Failed to fetch wallet balance:", error);
+          setWalletBalance(null);
+        }
+      } else if (demoMode) {
+        // Demo mode balance
+        setWalletBalance(1250.75);
+      } else {
+        setWalletBalance(null);
+      }
+    };
+
+    fetchWalletBalance();
+  }, [currentAccount, demoMode]);
 
   // Mock data for demonstrations
   const tvlData = [
@@ -157,6 +193,76 @@ const Analytics = () => {
           </div>
           <div className="mt-4 text-sm opacity-80">
             💡 Powered by CoinGecko API • Updates every 5 minutes
+          </div>
+        </div>
+      )}
+
+      {/* Wallet Overview */}
+      {(currentAccount || demoMode) && (
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-6 text-white">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            💼 Your Wallet Overview
+            {currentAccount && !demoMode && (
+              <span className="ml-2 px-2 py-1 bg-green-500 text-xs rounded-full">
+                CONNECTED
+              </span>
+            )}
+            {demoMode && (
+              <span className="ml-2 px-2 py-1 bg-blue-500 text-xs rounded-full">
+                DEMO
+              </span>
+            )}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <div className="text-sm opacity-80">APT Balance</div>
+              <div className="text-2xl font-bold">
+                {walletBalance !== null
+                  ? `${walletBalance.toFixed(4)} APT`
+                  : "Loading..."}
+              </div>
+              <div className="text-xs opacity-70">
+                {formatAddress(currentAccount?.address, "Demo Account")}
+              </div>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <div className="text-sm opacity-80">USD Value</div>
+              <div className="text-2xl font-bold">
+                {walletBalance !== null && cryptoPrices.aptos
+                  ? `$${(walletBalance * cryptoPrices.aptos.usd).toFixed(2)}`
+                  : "$--"}
+              </div>
+              <div className="text-xs opacity-70">
+                Based on current APT price
+              </div>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <div className="text-sm opacity-80">Active Vaults</div>
+              <div className="text-2xl font-bold">4</div>
+              <div className="text-xs opacity-70">RWA investments</div>
+            </div>
+          </div>
+          <div className="mt-4 text-sm opacity-80">
+            🔗 Real-time data from Aptos blockchain • Last updated:{" "}
+            {new Date().toLocaleTimeString()}
+          </div>
+        </div>
+      )}
+
+      {!currentAccount && !demoMode && (
+        <div className="bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl p-6 border-2 border-dashed border-gray-300">
+          <div className="text-center">
+            <div className="text-4xl mb-4">🔐</div>
+            <h2 className="text-xl font-bold text-gray-700 mb-2">
+              Connect Your Wallet
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Connect your Aptos wallet to view your portfolio analytics and
+              transaction history
+            </p>
+            <div className="text-sm text-gray-500">
+              Supported wallets: Petra, Martian, Pontem
+            </div>
           </div>
         </div>
       )}

@@ -159,7 +159,7 @@ const SocialTradingHub = ({ demoMode = false }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8 py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
