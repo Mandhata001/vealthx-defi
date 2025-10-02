@@ -13,7 +13,7 @@ export default defineConfig({
       },
     },
   ],
-  base: "/vealthx-defi/",
+  base: "/", // Changed from "/vealthx-defi/" for Vercel deployment
 
   // Performance optimizations
   build: {

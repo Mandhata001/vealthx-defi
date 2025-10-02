@@ -1,0 +1,13 @@
+{
+  "buildCommand": "cd vealthfx/frontend && npm install && npm run build",
+  "outputDirectory": "vealthfx/frontend/dist",
+  "devCommand": "cd vealthfx/frontend && npm run dev",
+  "installCommand": "cd vealthfx/frontend && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
