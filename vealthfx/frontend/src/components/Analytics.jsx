@@ -78,7 +78,9 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
           const balance = await aptos.getAccountAPTAmount({
             accountAddress: accountAddress,
           });
-          setWalletBalance(fromOctas(balance));
+          // fromOctas returns a string, convert to number
+          const balanceStr = fromOctas(balance);
+          setWalletBalance(parseFloat(balanceStr));
         } catch (error) {
           console.error("Failed to fetch wallet balance:", error);
           setWalletBalance(null);
@@ -133,10 +135,8 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Analytics Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
+          <p className="text-gray-400 mt-1">
             Real-time protocol metrics and insights
             {cryptoPrices.aptos && (
               <span className="ml-2 text-green-600 font-medium">
@@ -175,7 +175,7 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
             {Object.entries(cryptoPrices).map(([coin, data]) => (
               <div
                 key={coin}
-                className="bg-white/10 rounded-lg p-3 backdrop-blur-sm"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3"
               >
                 <div className="text-sm opacity-80 capitalize">
                   {coin.replace("-", " ")}
@@ -214,18 +214,18 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
             )}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
               <div className="text-sm opacity-80">APT Balance</div>
               <div className="text-2xl font-bold">
-                {walletBalance !== null
-                  ? `${walletBalance.toFixed(4)} APT`
+                {walletBalance !== null && !isNaN(walletBalance)
+                  ? `${Number(walletBalance).toFixed(4)} APT`
                   : "Loading..."}
               </div>
               <div className="text-xs opacity-70">
                 {formatAddress(currentAccount?.address, "Demo Account")}
               </div>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
               <div className="text-sm opacity-80">USD Value</div>
               <div className="text-2xl font-bold">
                 {walletBalance !== null && cryptoPrices.aptos
@@ -236,7 +236,7 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
                 Based on current APT price
               </div>
             </div>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
               <div className="text-sm opacity-80">Active Vaults</div>
               <div className="text-2xl font-bold">4</div>
               <div className="text-xs opacity-70">RWA investments</div>
@@ -250,13 +250,13 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
       )}
 
       {!currentAccount && !demoMode && (
-        <div className="bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl p-6 border-2 border-dashed border-gray-300">
+        <div className="bg-white/5 backdrop-blur-sm border-2 border-dashed border-white/10 rounded-xl p-6">
           <div className="text-center">
             <div className="text-4xl mb-4">🔐</div>
-            <h2 className="text-xl font-bold text-gray-700 mb-2">
+            <h2 className="text-xl font-bold text-white mb-2">
               Connect Your Wallet
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-400 mb-4">
               Connect your Aptos wallet to view your portfolio analytics and
               transaction history
             </p>
@@ -269,13 +269,13 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">
+              <p className="text-sm font-medium text-gray-400">
                 Total Value Locked
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-2xl font-bold text-white mt-1">
                 {protocolStats.totalValueLocked}
               </p>
             </div>
@@ -289,11 +289,11 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-sm font-medium text-gray-400">Total Users</p>
+              <p className="text-2xl font-bold text-white mt-1">
                 {protocolStats.totalUsers}
               </p>
             </div>
@@ -307,11 +307,11 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Daily Volume</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-sm font-medium text-gray-400">Daily Volume</p>
+              <p className="text-2xl font-bold text-white mt-1">
                 {protocolStats.dailyVolume}
               </p>
             </div>
@@ -325,11 +325,11 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Average APY</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-sm font-medium text-gray-400">Average APY</p>
+              <p className="text-2xl font-bold text-white mt-1">
                 {protocolStats.avgAPY}
               </p>
             </div>
@@ -347,8 +347,8 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Aptos Price Chart (Real Data) */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
             📈 Aptos (APT) Price History
             {cryptoPrices.aptos && (
               <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
@@ -388,8 +388,8 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
         </div>
 
         {/* Asset Allocation */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Asset Allocation
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -415,24 +415,24 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
       </div>
 
       {/* Yield Performance Table */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Asset Performance
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-700">
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 font-medium text-gray-300">
                   Asset
                 </th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">
+                <th className="text-left py-3 px-4 font-medium text-gray-300">
                   APY
                 </th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">
+                <th className="text-left py-3 px-4 font-medium text-gray-300">
                   Risk Level
                 </th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">
+                <th className="text-left py-3 px-4 font-medium text-gray-300">
                   Performance
                 </th>
               </tr>
@@ -441,12 +441,10 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
               {yieldData.map((asset, index) => (
                 <tr
                   key={index}
-                  className="border-b border-gray-100 hover:bg-gray-50"
+                  className="border-b border-white/10 hover:bg-white/5"
                 >
                   <td className="py-3 px-4">
-                    <div className="font-medium text-gray-900">
-                      {asset.asset}
-                    </div>
+                    <div className="font-medium text-white">{asset.asset}</div>
                   </td>
                   <td className="py-3 px-4">
                     <span className="text-green-600 font-semibold">
@@ -468,13 +466,13 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center space-x-2">
-                      <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div className="w-16 bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full"
                           style={{ width: `${(asset.apy / 20) * 100}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-400">
                         {Math.round((asset.apy / 20) * 100)}%
                       </span>
                     </div>
@@ -488,39 +486,39 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
 
       {/* Additional Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h4 className="font-semibold text-gray-900 mb-3">Protocol Health</h4>
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+          <h4 className="font-semibold text-white mb-3">Protocol Health</h4>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-400">
                 Collateralization Ratio
               </span>
               <span className="font-semibold text-green-600">145%</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Utilization Rate</span>
+              <span className="text-sm text-gray-400">Utilization Rate</span>
               <span className="font-semibold text-blue-600">78%</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Liquidation Risk</span>
+              <span className="text-sm text-gray-400">Liquidation Risk</span>
               <span className="font-semibold text-yellow-600">Low</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h4 className="font-semibold text-gray-900 mb-3">Market Activity</h4>
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+          <h4 className="font-semibold text-white mb-3">Market Activity</h4>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Active Vaults</span>
-              <span className="font-semibold text-gray-900">247</span>
+              <span className="text-sm text-gray-400">Active Vaults</span>
+              <span className="font-semibold text-white">247</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">New Deposits Today</span>
+              <span className="text-sm text-gray-400">New Deposits Today</span>
               <span className="font-semibold text-green-600">$23,400</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-400">
                 Pending Transactions
               </span>
               <span className="font-semibold text-orange-600">12</span>
@@ -528,19 +526,19 @@ const Analytics = ({ demoMode = false, walletConnected, account }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h4 className="font-semibold text-gray-900 mb-3">Network Stats</h4>
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+          <h4 className="font-semibold text-white mb-3">Network Stats</h4>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Gas Price (APT)</span>
-              <span className="font-semibold text-gray-900">0.00045</span>
+              <span className="text-sm text-gray-400">Gas Price (APT)</span>
+              <span className="font-semibold text-white">0.00045</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Block Time</span>
+              <span className="text-sm text-gray-400">Block Time</span>
               <span className="font-semibold text-blue-600">~4s</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Network Status</span>
+              <span className="text-sm text-gray-400">Network Status</span>
               <span className="font-semibold text-green-600">Healthy</span>
             </div>
           </div>

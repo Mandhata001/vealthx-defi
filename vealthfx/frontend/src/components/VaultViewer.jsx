@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { aptos, CONTRACT_ADDRESS, fromOctas } from "../lib/aptos";
+import { aptos, CONTRACT_ADDRESS, fromOctas, toOctas } from "../lib/aptos";
 
 export default function VaultViewer({
   demoMode = false,
   walletConnected,
   account,
 }) {
-  const { account: walletAccount } = useWallet();
+  const { account: walletAccount, signAndSubmitTransaction } = useWallet();
   const currentAccount = account || walletAccount;
   const [vault, setVault] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [selectedVault, setSelectedVault] = useState("real-estate");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [borrowAmount, setBorrowAmount] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // RWA Vault Types
   const rwaVaults = [
@@ -110,6 +113,90 @@ export default function VaultViewer({
     }
   };
 
+  const handleDeposit = async () => {
+    if (!currentAccount || !depositAmount) {
+      alert("Please enter deposit amount");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Initialize vault if it doesn't exist
+      if (!vault) {
+        const initTx = {
+          type: "entry_function_payload",
+          function: `${CONTRACT_ADDRESS}::vault::init_vault`,
+          arguments: [],
+          type_arguments: [],
+        };
+        await signAndSubmitTransaction(initTx);
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for transaction
+      }
+
+      // Deposit collateral
+      const depositTx = {
+        type: "entry_function_payload",
+        function: `${CONTRACT_ADDRESS}::vault::deposit_collateral`,
+        arguments: [toOctas(depositAmount)],
+        type_arguments: ["0x1::aptos_coin::AptosCoin"],
+      };
+
+      const result = await signAndSubmitTransaction(depositTx);
+      console.log("Deposit transaction:", result);
+
+      // Refresh vault data
+      setTimeout(() => {
+        fetchVaultData();
+        setDepositAmount("");
+      }, 2000);
+
+      alert("Deposit successful!");
+    } catch (error) {
+      console.error("Deposit failed:", error);
+      alert("Deposit failed: " + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBorrow = async () => {
+    if (!currentAccount || !borrowAmount) {
+      alert("Please enter borrow amount");
+      return;
+    }
+
+    if (!vault) {
+      alert("Please deposit collateral first");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const borrowTx = {
+        type: "entry_function_payload",
+        function: `${CONTRACT_ADDRESS}::vault::borrow_asset`,
+        arguments: [toOctas(borrowAmount)],
+        type_arguments: ["0x1::aptos_coin::AptosCoin"],
+      };
+
+      const result = await signAndSubmitTransaction(borrowTx);
+      console.log("Borrow transaction:", result);
+
+      // Refresh vault data
+      setTimeout(() => {
+        fetchVaultData();
+        setBorrowAmount("");
+      }, 2000);
+
+      alert("Borrow successful!");
+    } catch (error) {
+      console.error("Borrow failed:", error);
+      alert("Borrow failed: " + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   useEffect(() => {
     fetchVaultData();
 
@@ -120,7 +207,7 @@ export default function VaultViewer({
 
   if (!walletConnected && !demoMode) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="w-full px-2 sm:px-4 lg:px-6 py-6">
         <div className="bg-gradient-to-br from-gray-900/50 via-blue-900/30 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 shadow-2xl">
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -141,7 +228,7 @@ export default function VaultViewer({
   const selectedVaultData = rwaVaults.find((v) => v.id === selectedVault);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="w-full px-2 sm:px-4 lg:px-6 py-6 space-y-6">
       {/* RWA Vault Selection */}
       <div className="bg-gradient-to-br from-gray-900/50 via-blue-900/30 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 shadow-2xl">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
@@ -227,14 +314,109 @@ export default function VaultViewer({
           </div>
         </div>
 
-        <div className="flex space-x-4">
-          <button className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105">
-            🏦 Deposit
-          </button>
-          <button className="flex-1 bg-white/10 border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
-            📤 Withdraw
-          </button>
+        {/* Vault Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Deposit Form */}
+          <div className="bg-black/20 rounded-2xl p-6 border border-white/10">
+            <h4 className="text-lg font-bold text-white mb-4 flex items-center">
+              🏦 Deposit Collateral
+            </h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Amount (APT)
+                </label>
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-500 focus:outline-none transition-colors"
+                />
+              </div>
+              <button
+                onClick={handleDeposit}
+                disabled={isProcessing || !depositAmount}
+                className={`w-full px-6 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  isProcessing || !depositAmount
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-emerald-500 to-cyan-500 text-black hover:shadow-lg hover:shadow-emerald-500/25"
+                }`}
+              >
+                {isProcessing ? "Processing..." : "Deposit"}
+              </button>
+            </div>
+          </div>
+
+          {/* Borrow Form */}
+          <div className="bg-black/20 rounded-2xl p-6 border border-white/10">
+            <h4 className="text-lg font-bold text-white mb-4 flex items-center">
+              💰 Borrow Assets
+            </h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Amount (APT)
+                </label>
+                <input
+                  type="number"
+                  value={borrowAmount}
+                  onChange={(e) => setBorrowAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-500 focus:outline-none transition-colors"
+                />
+              </div>
+              <button
+                onClick={handleBorrow}
+                disabled={isProcessing || !borrowAmount || !vault}
+                className={`w-full px-6 py-3 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  isProcessing || !borrowAmount || !vault
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/25"
+                }`}
+              >
+                {isProcessing ? "Processing..." : "Borrow"}
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Vault Status */}
+        {vault && (
+          <div className="mt-6 bg-black/20 rounded-2xl p-6 border border-white/10">
+            <h4 className="text-lg font-bold text-white mb-4">
+              Your Vault Status
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <div className="text-sm text-gray-400">
+                  Deposited Collateral
+                </div>
+                <div className="text-xl font-bold text-emerald-400">
+                  {vault.data ? fromOctas(vault.data.collateral) : "0"} APT
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-400">Borrowed Amount</div>
+                <div className="text-xl font-bold text-purple-400">
+                  {vault.data ? fromOctas(vault.data.borrowed) : "0"} APT
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-400">Collateral Ratio</div>
+                <div className="text-xl font-bold text-cyan-400">
+                  {vault.data && vault.data.borrowed > 0
+                    ? (
+                        (parseFloat(fromOctas(vault.data.collateral)) /
+                          parseFloat(fromOctas(vault.data.borrowed))) *
+                        100
+                      ).toFixed(0) + "%"
+                    : "∞"}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

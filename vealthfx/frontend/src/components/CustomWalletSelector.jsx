@@ -25,7 +25,7 @@ const CustomWalletSelector = ({ onClose }) => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {wallets.map((wallet) => {
         const isConnecting = connectingWallet === wallet.name;
         return (
@@ -33,7 +33,7 @@ const CustomWalletSelector = ({ onClose }) => {
             key={wallet.name}
             onClick={() => handleWalletConnect(wallet.name)}
             disabled={connectingWallet !== null}
-            className={`w-full flex items-center space-x-3 p-3 border rounded-2xl transition-all duration-200 group ${
+            className={`w-full flex items-center space-x-2.5 p-2.5 border rounded-xl transition-all duration-200 group ${
               isConnecting
                 ? "bg-blue-500/20 border-blue-500/40 cursor-wait"
                 : connectingWallet
@@ -41,22 +41,22 @@ const CustomWalletSelector = ({ onClose }) => {
                 : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20"
             }`}
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
               {isConnecting ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               ) : wallet.icon ? (
                 <img
                   src={wallet.icon}
                   alt={wallet.name}
-                  className="w-6 h-6 rounded"
+                  className="w-5 h-5 rounded"
                 />
               ) : (
-                <span className="text-lg">💳</span>
+                <span className="text-base">💳</span>
               )}
             </div>
             <div className="flex-1 text-left min-w-0">
               <div
-                className={`font-medium truncate transition-colors ${
+                className={`text-sm font-medium truncate transition-colors ${
                   isConnecting
                     ? "text-blue-400"
                     : "text-white group-hover:text-cyan-400"
@@ -64,7 +64,7 @@ const CustomWalletSelector = ({ onClose }) => {
               >
                 {isConnecting ? "Connecting..." : wallet.name}
               </div>
-              <div className="text-xs text-gray-400 truncate">
+              <div className="text-[10px] text-gray-400 truncate">
                 {isConnecting
                   ? "Check your wallet"
                   : wallet.name === "Petra"

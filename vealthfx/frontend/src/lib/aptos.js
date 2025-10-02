@@ -1,11 +1,37 @@
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
+// Debug: Log all environment variables
+console.log("🔍 DEBUG - All VITE env vars:", {
+  VITE_CONTRACT_ADDRESS: import.meta.env.VITE_CONTRACT_ADDRESS,
+  VITE_NETWORK: import.meta.env.VITE_NETWORK,
+  VITE_NODE_URL: import.meta.env.VITE_NODE_URL,
+  allKeys: Object.keys(import.meta.env).filter((k) => k.startsWith("VITE_")),
+});
+
 // Network configuration
 export const NETWORK =
   import.meta.env.VITE_NETWORK === "mainnet" ? Network.MAINNET : Network.DEVNET;
 export const NODE_URL =
   import.meta.env.VITE_NODE_URL || "https://fullnode.devnet.aptoslabs.com/v1";
 export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
+
+// Validate critical configuration
+if (
+  !CONTRACT_ADDRESS ||
+  CONTRACT_ADDRESS === "undefined" ||
+  CONTRACT_ADDRESS === ""
+) {
+  console.error(
+    "❌ CONTRACT_ADDRESS is not configured!\n" +
+      "Please create a .env.local file with:\n" +
+      "VITE_CONTRACT_ADDRESS=0x...your_deployed_contract_address"
+  );
+} else {
+  console.log("✅ Configuration loaded successfully:");
+  console.log("   - Contract Address:", CONTRACT_ADDRESS);
+  console.log("   - Network:", NETWORK);
+  console.log("   - Node URL:", NODE_URL);
+}
 
 // Aptos Build Integration (CTRL+MOVE Hackathon)
 export const APTOS_BUILD_API_KEY = import.meta.env.VITE_APTOS_BUILD_API_KEY;
@@ -50,6 +76,11 @@ export function getExplorerUrl(hash) {
 
 // Contract function builders
 export function buildDepositPayload(amount) {
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "undefined") {
+    throw new Error(
+      "Contract address not configured. Please set VITE_CONTRACT_ADDRESS in your .env.local file."
+    );
+  }
   return {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::deposit_collateral`,
@@ -59,6 +90,11 @@ export function buildDepositPayload(amount) {
 }
 
 export function buildBorrowPayload(amount) {
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "undefined") {
+    throw new Error(
+      "Contract address not configured. Please set VITE_CONTRACT_ADDRESS in your .env.local file."
+    );
+  }
   return {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::borrow_asset`,
@@ -68,6 +104,11 @@ export function buildBorrowPayload(amount) {
 }
 
 export function buildWithdrawPayload(amount) {
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "undefined") {
+    throw new Error(
+      "Contract address not configured. Please set VITE_CONTRACT_ADDRESS in your .env.local file."
+    );
+  }
   return {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::withdraw_collateral`,
@@ -77,6 +118,11 @@ export function buildWithdrawPayload(amount) {
 }
 
 export function buildRepayPayload(amount) {
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "undefined") {
+    throw new Error(
+      "Contract address not configured. Please set VITE_CONTRACT_ADDRESS in your .env.local file."
+    );
+  }
   return {
     type: "entry_function_payload",
     function: `${CONTRACT_ADDRESS}::vault::repay_debt`,
@@ -152,16 +198,23 @@ export const POOL_ACTIVITY_QUERY = `
 `;
 
 // Gas Station integration for sponsored transactions
-export async function submitSponsoredTransaction(wallet, payload) {
+export async function submitSponsoredTransaction(walletData, payload) {
+  // Destructure the wallet data properly
+  const { account, signAndSubmitTransaction } = walletData;
+
+  if (!account || !signAndSubmitTransaction) {
+    throw new Error("Wallet not properly connected");
+  }
+
   if (!GAS_STATION_ENABLED) {
     // Fallback to regular transaction
-    return await wallet.signAndSubmitTransaction(payload);
+    return await signAndSubmitTransaction(payload);
   }
 
   try {
     // Build transaction with gas sponsorship
     const transaction = await aptos.transaction.build.simple({
-      sender: wallet.account.address,
+      sender: account.address,
       data: payload,
       options: {
         // Gas sponsorship options
@@ -171,7 +224,7 @@ export async function submitSponsoredTransaction(wallet, payload) {
     });
 
     // Sign and submit with sponsorship
-    const response = await wallet.signAndSubmitTransaction(transaction);
+    const response = await signAndSubmitTransaction(transaction);
     console.log("Sponsored transaction submitted:", response.hash);
     return response;
   } catch (error) {
@@ -180,7 +233,7 @@ export async function submitSponsoredTransaction(wallet, payload) {
       error
     );
     // Fallback to regular transaction
-    return await wallet.signAndSubmitTransaction(payload);
+    return await signAndSubmitTransaction(payload);
   }
 }
 

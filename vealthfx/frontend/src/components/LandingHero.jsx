@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VealthXLogo from "../assets/VealthX_logo.png";
 
 const LandingHero = ({ onConnectWallet }) => {
   const [selectedAsset, setSelectedAsset] = useState(0);
@@ -87,42 +88,6 @@ const LandingHero = ({ onConnectWallet }) => {
                   </div>
 
                   <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black leading-tight relative">
-                    {/* X-shaped moving animation behind text */}
-                    <div className="absolute inset-0 overflow-hidden">
-                      <div
-                        className="x-shape-bg x-shape-1"
-                        style={{ top: "10%", left: "5%" }}
-                      ></div>
-                      <div
-                        className="x-shape-bg x-shape-2"
-                        style={{ top: "70%", right: "10%" }}
-                      ></div>
-                      <div
-                        className="x-shape-bg x-shape-1"
-                        style={{
-                          top: "35%",
-                          left: "65%",
-                          animationDelay: "-5s",
-                        }}
-                      ></div>
-                      <div
-                        className="x-shape-bg x-shape-2"
-                        style={{
-                          top: "50%",
-                          left: "20%",
-                          animationDelay: "-10s",
-                        }}
-                      ></div>
-                      <div
-                        className="x-shape-bg x-shape-1"
-                        style={{
-                          top: "80%",
-                          left: "80%",
-                          animationDelay: "-7s",
-                        }}
-                      ></div>
-                    </div>
-
                     <span className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-300 bg-clip-text text-transparent drop-shadow-2xl relative z-10">
                       VealthX
                     </span>
@@ -210,7 +175,7 @@ const LandingHero = ({ onConnectWallet }) => {
               </div>
 
               {/* Right side - Asset showcase */}
-              <div className="space-y-8">
+              <div className="space-y-8 lg:pl-12 xl:pl-20">
                 <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl shadow-cyan-500/10 p-8 border border-cyan-400/20">
                   <h3 className="text-2xl font-bold text-white mb-6">
                     🔥 Featured RWA Assets

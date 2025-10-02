@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { aptos, toOctas, fromOctas } from "../lib/aptos";
 import { getAccountAddress } from "../utils/addressUtils.js";
+import { useRealTimeData, usePriceFeed } from "../hooks/useRealTimeData.js";
 import {
   AreaChart,
   Area,
@@ -17,14 +18,25 @@ import {
 const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
   const { account: walletAccount, signAndSubmitTransaction } = useWallet();
   const currentAccount = account || walletAccount;
+
+  // Real-time data hooks
+  const { events, loading: eventsLoading } = useRealTimeData(
+    currentAccount?.address,
+    null,
+    walletConnected && !demoMode
+  );
+  const { prices, loading: pricesLoading } = usePriceFeed(
+    ["APT/USDC", "APT/ETH", "APT/BTC"],
+    true
+  );
   const [orderBook, setOrderBook] = useState({
-    buyOrders: [
+    bids: [
       { price: 1.2345, amount: 1000, total: 1234.5 },
       { price: 1.234, amount: 1500, total: 1851.0 },
       { price: 1.2335, amount: 2000, total: 2467.0 },
       { price: 1.233, amount: 800, total: 986.4 },
     ],
-    sellOrders: [
+    asks: [
       { price: 1.235, amount: 1200, total: 1482.0 },
       { price: 1.2355, amount: 900, total: 1111.95 },
       { price: 1.236, amount: 1600, total: 1977.6 },
@@ -42,8 +54,8 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
       id: 1,
       pair: "APT/USDC",
       side: "buy",
-      amount: "150.00",
-      price: "12.45",
+      amount: 150.0,
+      price: 12.45,
       time: "14:23:12",
       status: "completed",
     },
@@ -51,8 +63,8 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
       id: 2,
       pair: "APT/USDC",
       side: "sell",
-      amount: "75.50",
-      price: "12.40",
+      amount: 75.5,
+      price: 12.4,
       time: "14:21:45",
       status: "completed",
     },
@@ -67,10 +79,38 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
     },
   ]);
 
+  // Use real-time prices or fallback to static data
   const tradingPairs = [
-    { symbol: "APT/USDC", price: "12.45", change: "+2.34%", volume: "1.2M" },
-    { symbol: "APT/ETH", price: "0.0032", change: "-1.12%", volume: "850K" },
-    { symbol: "APT/BTC", price: "0.00025", change: "+0.89%", volume: "650K" },
+    {
+      symbol: "APT/USDC",
+      price: prices["APT/USDC"]?.price || "12.45",
+      change: prices["APT/USDC"]?.change24h
+        ? `${prices["APT/USDC"].change24h}%`
+        : "+2.34%",
+      volume: prices["APT/USDC"]?.volume24h
+        ? `${(prices["APT/USDC"].volume24h / 1000000).toFixed(1)}M`
+        : "1.2M",
+    },
+    {
+      symbol: "APT/ETH",
+      price: prices["APT/ETH"]?.price || "0.0032",
+      change: prices["APT/ETH"]?.change24h
+        ? `${prices["APT/ETH"].change24h}%`
+        : "-1.12%",
+      volume: prices["APT/ETH"]?.volume24h
+        ? `${(prices["APT/ETH"].volume24h / 1000).toFixed(0)}K`
+        : "850K",
+    },
+    {
+      symbol: "APT/BTC",
+      price: prices["APT/BTC"]?.price || "0.00025",
+      change: prices["APT/BTC"]?.change24h
+        ? `${prices["APT/BTC"].change24h}%`
+        : "+0.89%",
+      volume: prices["APT/BTC"]?.volume24h
+        ? `${(prices["APT/BTC"].volume24h / 1000).toFixed(0)}K`
+        : "650K",
+    },
   ];
 
   const handlePlaceOrder = async () => {
@@ -81,6 +121,12 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
 
     if (!orderAmount || !orderPrice) {
       alert("Please enter both amount and price");
+      return;
+    }
+
+    // Validate signAndSubmitTransaction is available
+    if (!demoMode && !signAndSubmitTransaction) {
+      alert("Wallet not properly connected. Please reconnect your wallet.");
       return;
     }
 
@@ -101,14 +147,14 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
         if (orderType === "buy") {
           setOrderBook((prev) => ({
             ...prev,
-            buyOrders: [...prev.buyOrders, newOrder].sort(
+            bids: [...(prev.bids || []), newOrder].sort(
               (a, b) => b.price - a.price
             ),
           }));
         } else {
           setOrderBook((prev) => ({
             ...prev,
-            sellOrders: [...prev.sellOrders, newOrder].sort(
+            asks: [...(prev.asks || []), newOrder].sort(
               (a, b) => a.price - b.price
             ),
           }));
@@ -119,58 +165,71 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
           id: Date.now(),
           pair: selectedPair,
           side: orderType,
-          amount: orderAmount,
-          price: orderPrice,
+          amount: parseFloat(orderAmount),
+          price: parseFloat(orderPrice),
           time: new Date().toLocaleTimeString(),
           status: "completed",
         };
         setRecentTrades((prev) => [newTrade, ...prev.slice(0, 9)]);
       } else {
-        // Real mode - create actual transaction
+        // Real mode - create actual transaction (simplified trading)
         const accountAddress = getAccountAddress(currentAccount);
         if (!accountAddress) {
           throw new Error("Invalid account address");
         }
 
+        // Validate account address format
+        if (!accountAddress.startsWith("0x")) {
+          throw new Error("Invalid account address format");
+        }
+
+        // For demo purposes, we'll simulate a trade by transferring tokens
+        // In a real CLOB, this would interact with an order book contract
         const transaction = {
-          function: "0x1::coin::transfer",
-          type_arguments: ["0x1::aptos_coin::AptosCoin"],
-          arguments: [accountAddress, toOctas(orderValue).toString()],
+          type: "entry_function_payload",
+          function: "0x1::aptos_account::transfer",
+          type_arguments: [],
+          arguments: [accountAddress, toOctas(0.001)], // Small fee for demo
         };
 
-        await signAndSubmitTransaction(transaction);
+        console.log("Trading transaction payload:", transaction);
+        const result = await signAndSubmitTransaction(transaction);
+        console.log("Trade transaction:", result);
 
-        // Update order book and trades on successful transaction
+        // Add to order book (local state for UI)
         const newOrder = {
           price: parseFloat(orderPrice),
           amount: parseFloat(orderAmount),
           total: orderValue,
+          txHash: result.hash,
         };
 
         if (orderType === "buy") {
           setOrderBook((prev) => ({
             ...prev,
-            buyOrders: [...prev.buyOrders, newOrder].sort(
+            bids: [...(prev.bids || []), newOrder].sort(
               (a, b) => b.price - a.price
             ),
           }));
         } else {
           setOrderBook((prev) => ({
             ...prev,
-            sellOrders: [...prev.sellOrders, newOrder].sort(
+            asks: [...(prev.asks || []), newOrder].sort(
               (a, b) => a.price - b.price
             ),
           }));
         }
 
+        // Add to recent trades with transaction hash
         const newTrade = {
           id: Date.now(),
           pair: selectedPair,
           side: orderType,
-          amount: orderAmount,
-          price: orderPrice,
+          amount: parseFloat(orderAmount),
+          price: parseFloat(orderPrice),
           time: new Date().toLocaleTimeString(),
           status: "completed",
+          txHash: result.hash,
         };
         setRecentTrades((prev) => [newTrade, ...prev.slice(0, 9)]);
       }
@@ -217,11 +276,11 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
       ];
 
       const mockTrades = [
-        { time: "14:23:45", price: 1.245, quantity: 150, side: "buy" },
-        { time: "14:23:42", price: 1.244, quantity: 200, side: "sell" },
-        { time: "14:23:38", price: 1.246, quantity: 300, side: "buy" },
-        { time: "14:23:35", price: 1.243, quantity: 180, side: "sell" },
-        { time: "14:23:30", price: 1.245, quantity: 250, side: "buy" },
+        { time: "14:23:45", price: 1.245, amount: 150, side: "buy" },
+        { time: "14:23:42", price: 1.244, amount: 200, side: "sell" },
+        { time: "14:23:38", price: 1.246, amount: 300, side: "buy" },
+        { time: "14:23:35", price: 1.243, amount: 180, side: "sell" },
+        { time: "14:23:30", price: 1.245, amount: 250, side: "buy" },
       ];
 
       setOrderBook({ bids: mockBids, asks: mockAsks });
@@ -380,7 +439,7 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
           <div className="mb-4">
             <div className="text-sm text-gray-400 mb-2">Asks (Sell)</div>
             <div className="space-y-1">
-              {orderBook.asks
+              {(orderBook.asks || [])
                 .slice()
                 .reverse()
                 .map((ask, index) => (
@@ -408,7 +467,7 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
           <div>
             <div className="text-sm text-gray-400 mb-2">Bids (Buy)</div>
             <div className="space-y-1">
-              {orderBook.bids.map((bid, index) => (
+              {(orderBook.bids || []).map((bid, index) => (
                 <div
                   key={index}
                   className="flex justify-between text-sm bg-green-500/10 p-2 rounded"
@@ -441,8 +500,12 @@ const TradingDashboard = ({ demoMode = false, walletConnected, account }) => {
             {recentTrades.map((trade, index) => (
               <div key={index} className="grid grid-cols-4 text-sm">
                 <span className="text-gray-300">{trade.time}</span>
-                <span className="text-white">${trade.price.toFixed(3)}</span>
-                <span className="text-gray-300">{trade.quantity}</span>
+                <span className="text-white">
+                  ${parseFloat(trade.price || 0).toFixed(3)}
+                </span>
+                <span className="text-gray-300">
+                  {trade.quantity || trade.amount}
+                </span>
                 <span
                   className={`font-semibold ${
                     trade.side === "buy" ? "text-green-400" : "text-red-400"

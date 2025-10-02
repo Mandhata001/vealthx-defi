@@ -21,10 +21,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ["react", "react-dom"],
-          wallet: [
-            "@aptos-labs/wallet-adapter-react",
-            "@aptos-labs/wallet-adapter-ant-design",
-          ],
+          wallet: ["@aptos-labs/wallet-adapter-react"],
           charts: ["recharts"],
         },
       },
