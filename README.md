@@ -277,7 +277,7 @@ VealthX is revolutionizing decentralized finance by building a **next-generation
 
 - **Network:** Aptos Devnet → Mainnet (Q1 2026)
 - **Smart Contracts:** Move language (Aptos native)
-- **Contract Address:** `0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf`
+- **Contract Address:** `0x1236454888178`
 - **Wallet Support:** Petra, Martian, Pontem, Fewcha
 
 #### **Frontend Stack**
@@ -376,13 +376,13 @@ vealthfx/sources/
 
 ### Contract Overview
 
-| Contract                | Purpose                                   | Size      | Status      |
-| ----------------------- | ----------------------------------------- | --------- | ----------- |
-| `vault.move`            | RWA vault management, deposits, borrowing | 207 lines | ✅ Deployed |
-| `payments.move`         | Cross-border payments, settlements        | 333 lines | ✅ Deployed |
-| `oracle.move`           | Price feed oracle, data validation        | -         | ✅ Deployed |
-| `router.move`           | Transaction routing, optimization         | -         | ✅ Deployed |
-| `clob_integration.move` | Order book, trade matching                | -         | ✅ Deployed |
+| Contract                | Purpose                                   |
+| ----------------------- | ----------------------------------------- | 
+| `vault.move`            | RWA vault management, deposits, borrowing | 
+| `payments.move`         | Cross-border payments, settlements        | 
+| `oracle.move`           | Price feed oracle, data validation        | 
+| `router.move`           | Transaction routing, optimization         | 
+| `clob_integration.move` | Order book, trade matching                | 
 
 ### Key Functions
 
@@ -468,7 +468,7 @@ Create `.env` file in `vealthfx/frontend/`:
 
 ```env
 VITE_APTOS_NODE_URL=https://fullnode.devnet.aptoslabs.com/v1
-VITE_CONTRACT_ADDRESS=0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+VITE_CONTRACT_ADDRESS=0x12365564688
 VITE_COINGECKO_API_KEY=your_api_key_here
 ```
 
