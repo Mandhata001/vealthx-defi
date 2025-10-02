@@ -80,7 +80,7 @@ VealthX DeFi is a **well-architected, feature-complete DeFi platform** built on 
 
 #### **Contract Deployment**
 
-- ✅ Contract Address: `0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf`
+- ✅ Contract Address: Deployed and verified on Aptos Devnet
 - ✅ Network: Aptos Devnet (configurable for mainnet)
 - ✅ Build system: Aptos CLI v7.7.0
 - ✅ Framework: Aptos Framework (mainnet revision)

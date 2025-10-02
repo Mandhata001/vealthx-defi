@@ -767,7 +767,9 @@ public fun get_order_book(pair: vector<u8>): OrderBook
 **Aptos Devnet:**
 
 ```
-Main Contract: 0x60543f2bb7710af2225194e1046db5605d85933eb4f14ba574bf58d56beef7bf
+**Smart Contract Details:**
+
+Main Contract: Deployed on Aptos Devnet (contact team for address)
 ```
 
 ### Security Features
