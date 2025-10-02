@@ -7,6 +7,9 @@ config.yaml
 **/config.yaml
 **/.aptos/
 
+# Assets - Design files and large images
+assets/
+
 # Build files
 build/
 

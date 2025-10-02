@@ -12,6 +12,7 @@
 ### Step 2: Configure Project
 
 **Project Settings:**
+
 - Framework Preset: Vite
 - Root Directory: `./`
 - Build Command: `cd vealthfx/frontend && npm install && npm run build`
@@ -67,11 +68,13 @@ vercel --prod
 Once connected to Vercel:
 
 ✅ **Automatic Deployments:**
+
 - Every push to `main` branch → Production deployment
 - Every pull request → Preview deployment
 - Automatic builds and updates
 
 ✅ **Custom Domain (Optional):**
+
 1. Go to Vercel Dashboard → Project Settings → Domains
 2. Add your custom domain (e.g., vealthx.com)
 3. Configure DNS records
@@ -136,6 +139,7 @@ After deployment, update these files:
 ### Performance Optimization
 
 Vercel automatically provides:
+
 - ✅ Global CDN
 - ✅ Edge caching
 - ✅ Automatic HTTPS
