@@ -103,13 +103,55 @@ const PaymentsHub = ({ demoMode = false, walletConnected, account }) => {
   ];
 
   const handleSendPayment = async () => {
-    if (!walletConnected || !currentAccount) {
-      alert("Please connect your wallet first");
+    if (!sendForm.recipient || !sendForm.amount) {
+      alert("Please fill in recipient and amount");
       return;
     }
 
-    if (!sendForm.recipient || !sendForm.amount) {
-      alert("Please fill in recipient and amount");
+    // Demo mode handling
+    if (demoMode) {
+      setLoading(true);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const fakeHash = `DEMO-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      setTxHash(fakeHash);
+
+      // Add to history
+      const newPayment = {
+        id: Date.now(),
+        type: "sent",
+        recipient: sendForm.recipient,
+        amount: parseFloat(sendForm.amount),
+        currency: sendForm.currency,
+        status: "completed",
+        memo: sendForm.memo || "Demo payment",
+        timestamp: new Date().toLocaleString(),
+        fee: 0.001,
+        country: sendForm.country,
+        txHash: fakeHash,
+      };
+
+      setPaymentHistory((prev) => [newPayment, ...prev]);
+
+      // Reset form
+      setSendForm({
+        recipient: "",
+        amount: "",
+        currency: "APT",
+        memo: "",
+        country: "US",
+      });
+
+      setLoading(false);
+      alert("✅ Demo Mode: Payment sent successfully!\n\nTransaction: " + fakeHash);
+      return;
+    }
+
+    // Real wallet mode
+    if (!walletConnected || !currentAccount) {
+      alert("Please connect your wallet first");
       return;
     }
 
