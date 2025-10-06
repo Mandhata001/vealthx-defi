@@ -1,8 +1,12 @@
 import { useState } from "react";
 import VealthXLogo from "../assets/VealthX_logo.png";
+import WalletIcon from "../assets/wallet_icon.png";
+import WatchDemoIcon from "../assets/watch_demo_icon.png";
+import DemoPopup from "./DemoPopup";
 
 const LandingHero = ({ onConnectWallet }) => {
   const [selectedAsset, setSelectedAsset] = useState(0);
+  const [showDemo, setShowDemo] = useState(false);
 
   const featuredAssets = [
     {
@@ -164,11 +168,26 @@ const LandingHero = ({ onConnectWallet }) => {
                       onClick={onConnectWallet}
                       className="bg-gradient-to-r from-cyan-500 via-emerald-500 to-cyan-400 text-black px-10 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:shadow-cyan-500/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 focus-visible:scale-105 focus-visible:-translate-y-1 relative overflow-hidden group"
                     >
-                      <span className="relative z-10">🔗 Connect Wallet</span>
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        <img
+                          src={WalletIcon}
+                          alt="Wallet"
+                          className="w-5 h-5"
+                        />
+                        Connect Wallet
+                      </span>
                       <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </button>
-                    <button className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/20 hover:border-cyan-400/50 hover:shadow-xl hover:shadow-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:bg-white/20 focus-visible:border-cyan-400/50 transition-all duration-300 transform hover:scale-105 focus-visible:scale-105">
-                      📺 Watch Demo
+                    <button
+                      onClick={() => setShowDemo(true)}
+                      className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/20 hover:border-cyan-400/50 hover:shadow-xl hover:shadow-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:bg-white/20 focus-visible:border-cyan-400/50 transition-all duration-300 transform hover:scale-105 focus-visible:scale-105 flex items-center justify-center gap-2"
+                    >
+                      <img
+                        src={WatchDemoIcon}
+                        alt="Watch Demo"
+                        className="w-5 h-5"
+                      />
+                      Watch Demo
                     </button>
                   </div>
                 </div>
@@ -439,6 +458,9 @@ const LandingHero = ({ onConnectWallet }) => {
           </div>
         </div>
       </div>
+
+      {/* Demo Popup */}
+      <DemoPopup isOpen={showDemo} onClose={() => setShowDemo(false)} />
     </div>
   );
 };

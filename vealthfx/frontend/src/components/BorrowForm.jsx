@@ -7,7 +7,7 @@ import {
   GAS_STATION_ENABLED,
 } from "../lib/aptos";
 
-export default function BorrowForm() {
+export default function BorrowForm({ demoMode = false }) {
   const { account, signAndSubmitTransaction } = useWallet();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,47 @@ export default function BorrowForm() {
   ).toFixed(1);
 
   const handleBorrow = async () => {
+    // Demo mode simulation
+    if (demoMode) {
+      if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+        alert("Please enter a valid amount greater than 0");
+        return;
+      }
+
+      if (parseFloat(amount) > parseFloat(maxBorrowAmount)) {
+        alert(`Cannot borrow more than ${maxBorrowAmount} APT`);
+        return;
+      }
+
+      setLoading(true);
+      setLastTx(null);
+      setSuccess(false);
+
+      // Simulate transaction delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Generate fake transaction hash
+      const fakeHash = `0xdemo${Date.now()}${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
+      setLastTx(fakeHash);
+      setSuccess(true);
+      setAmount("");
+
+      setTimeout(() => setSuccess(false), 5000);
+      setLoading(false);
+
+      alert(
+        `✅ Demo Mode: Successfully borrowed ${amount} APT!\n\nTransaction Hash: ${fakeHash.substring(
+          0,
+          20
+        )}...\n\nHealth Ratio: ${healthRatio}%`
+      );
+      return;
+    }
+
+    // Real wallet transaction
     if (!account) {
       alert("Please connect your wallet first");
       return;
@@ -36,6 +77,17 @@ export default function BorrowForm() {
 
     if (parseFloat(amount) > parseFloat(maxBorrowAmount)) {
       alert(`Cannot borrow more than ${maxBorrowAmount} APT`);
+      return;
+    }
+
+    // Check if signAndSubmitTransaction is available
+    if (
+      !signAndSubmitTransaction ||
+      typeof signAndSubmitTransaction !== "function"
+    ) {
+      alert(
+        "⚠️ Wallet not properly connected. Please:\n1. Connect your Petra Wallet\n2. Make sure you have collateral deposited\n3. Try again"
+      );
       return;
     }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { aptos, CONTRACT_ADDRESS, fromOctas, toOctas } from "../lib/aptos";
+import { getAccountAddress } from "../utils/addressUtils";
 
 export default function VaultViewer({
   demoMode = false,
@@ -114,8 +115,28 @@ export default function VaultViewer({
   };
 
   const handleDeposit = async () => {
+    // Demo mode simulation
+    if (demoMode) {
+      alert(
+        "✅ Demo: Deposit of " + depositAmount + " APT simulated successfully!"
+      );
+      setDepositAmount("");
+      return;
+    }
+
     if (!currentAccount || !depositAmount) {
       alert("Please enter deposit amount");
+      return;
+    }
+
+    // Check if signAndSubmitTransaction is available
+    if (
+      !signAndSubmitTransaction ||
+      typeof signAndSubmitTransaction !== "function"
+    ) {
+      alert(
+        "⚠️ Wallet not properly connected. Please:\n1. Connect your Petra Wallet\n2. Make sure you have APT tokens\n3. Try again"
+      );
       return;
     }
 
@@ -160,6 +181,15 @@ export default function VaultViewer({
   };
 
   const handleBorrow = async () => {
+    // Demo mode simulation
+    if (demoMode) {
+      alert(
+        "✅ Demo: Borrow of " + borrowAmount + " APT simulated successfully!"
+      );
+      setBorrowAmount("");
+      return;
+    }
+
     if (!currentAccount || !borrowAmount) {
       alert("Please enter borrow amount");
       return;
@@ -167,6 +197,17 @@ export default function VaultViewer({
 
     if (!vault) {
       alert("Please deposit collateral first");
+      return;
+    }
+
+    // Check if signAndSubmitTransaction is available
+    if (
+      !signAndSubmitTransaction ||
+      typeof signAndSubmitTransaction !== "function"
+    ) {
+      alert(
+        "⚠️ Wallet not properly connected. Please reconnect your Petra Wallet."
+      );
       return;
     }
 

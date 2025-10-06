@@ -1,5 +1,12 @@
 import * as Sentry from "@sentry/react";
 
+/**
+ * ⚠️ DISCLAIMER: This is a personal educational project
+ * Sentry is used for demonstration and debugging purposes only.
+ * This is NOT a production service and no sensitive user data is collected.
+ * Error monitoring is for educational/development purposes.
+ */
+
 // Initialize Sentry for error monitoring
 const initSentry = () => {
   const sentryDsn = import.meta.env.VITE_SENTRY_DSN;

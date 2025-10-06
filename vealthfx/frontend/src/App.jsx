@@ -3,6 +3,8 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import CustomWalletSelector from "./components/CustomWalletSelector.jsx";
 import { formatAddress } from "./utils/addressUtils.js";
 import VealthXLogo from "./assets/VealthX_logo.png";
+import HomeIcon from "./assets/Home_Icon.png";
+import WalletIcon from "./assets/wallet_icon.png";
 import DepositForm from "./components/DepositForm.jsx";
 import BorrowForm from "./components/BorrowForm.jsx";
 import VaultViewer from "./components/VaultViewer.jsx";
@@ -163,7 +165,6 @@ function App() {
           </div>
         </div>
       )}
-
       {/* Login Popup */}
       {showLogin && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -230,15 +231,13 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* Wallet Selector Modal */}
       {showWalletSelector && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 w-full max-w-sm shadow-2xl shadow-black/50 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">�</span>
+                  <span className="text-lg">👛</span>
                 </div>
                 <h2 className="text-xl font-bold text-white">Connect Wallet</h2>
               </div>
@@ -262,7 +261,6 @@ function App() {
           </div>
         </div>
       )}
-
       {/* Header */}
       <header className="bg-gray-900/95 backdrop-blur-sm border-b border-gray-700/50 sticky top-0 z-40 shadow-lg">
         <div className="w-full px-2 sm:px-4 lg:px-6">
@@ -317,7 +315,7 @@ function App() {
                 onClick={() => setActiveTab("home")}
                 className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-lg hover:from-cyan-500/30 hover:to-blue-500/30 transition-all duration-300 transform hover:scale-105"
               >
-                <span className="text-lg">🏠</span>
+                <img src={HomeIcon} alt="Home" className="w-5 h-5" />
                 <span className="text-sm font-medium text-cyan-400">Home</span>
               </button>
 
@@ -327,13 +325,13 @@ function App() {
                   onClick={() => setShowWalletSelector(true)}
                   className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-400 hover:from-purple-500/30 hover:to-pink-500/30 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105"
                 >
-                  <span className="text-lg">👛</span>
+                  <img src={WalletIcon} alt="Wallet" className="w-5 h-5" />
                   <span className="hidden sm:inline">Connect Wallet</span>
                 </button>
               ) : (
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 px-3 py-2 bg-green-500/20 border border-green-500/30 text-green-400 rounded-lg">
-                    <span className="text-lg">🔗</span>
+                    <img src={WalletIcon} alt="Connected" className="w-5 h-5" />
                     <span className="hidden sm:inline text-xs">
                       {formatAddress(account?.address)}
                     </span>
@@ -393,14 +391,13 @@ function App() {
           </div>
         </div>
       </header>
-
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-gray-900/95 backdrop-blur-sm border-b border-gray-700/50">
           <div className="w-full px-2 sm:px-4 lg:px-6 py-4">
             <div className="space-y-2">
               {[
-                { name: "Home", icon: "🏠", id: "home" },
+                { name: "Home", icon: HomeIcon, id: "home", isImage: true },
                 { name: "RWA Vaults", icon: "🏦", id: "vault" },
                 { name: "Deposit", icon: "💰", id: "deposit" },
                 { name: "Borrow", icon: "📊", id: "borrow" },
@@ -422,9 +419,18 @@ function App() {
                       : "text-gray-400 hover:text-white hover:bg-gray-800/50"
                   }`}
                 >
-                  <span className="text-lg" aria-hidden="true">
-                    {tab.icon}
-                  </span>
+                  {tab.isImage ? (
+                    <img
+                      src={tab.icon}
+                      alt={tab.name}
+                      className="w-5 h-5"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span className="text-lg" aria-hidden="true">
+                      {tab.icon}
+                    </span>
+                  )}
                   <span>{tab.name}</span>
                 </button>
               ))}
@@ -432,14 +438,13 @@ function App() {
           </div>
         </div>
       )}
-
       {/* Navigation - Only visible when demo mode is ON or wallet is connected */}
       {(demoMode || connected) && (
         <nav className="bg-gray-900/90 backdrop-blur-sm border-b border-gray-700/50">
           <div className="w-full px-2 sm:px-4 lg:px-6">
             <div className="flex items-center justify-center space-x-1 py-4 overflow-x-auto">
               {[
-                { name: "Home", icon: "🏠", id: "home" },
+                { name: "Home", icon: HomeIcon, id: "home", isImage: true },
                 { name: "RWA Vaults", icon: "🏦", id: "vault" },
                 { name: "Deposit", icon: "💰", id: "deposit" },
                 { name: "Borrow", icon: "📊", id: "borrow" },
@@ -458,9 +463,18 @@ function App() {
                       : "text-gray-400 hover:text-white hover:bg-gray-800/50"
                   }`}
                 >
-                  <span className="text-lg" aria-hidden="true">
-                    {tab.icon}
-                  </span>
+                  {tab.isImage ? (
+                    <img
+                      src={tab.icon}
+                      alt={tab.name}
+                      className="w-5 h-5"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span className="text-lg" aria-hidden="true">
+                      {tab.icon}
+                    </span>
+                  )}
                   <span className="hidden sm:inline">{tab.name}</span>
                 </button>
               ))}
@@ -476,7 +490,6 @@ function App() {
           </div>
         </nav>
       )}
-
       {/* X-shaped moving animations - Full body background (everywhere except header) */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
@@ -539,12 +552,10 @@ function App() {
           }}
         ></div>
       </div>
-
       {/* Main Content */}
       <main className="flex-1 w-full relative" style={{ zIndex: 1 }}>
         {renderContent()}
       </main>
-
       {/* Footer */}
       <footer className="bg-gradient-to-r from-gray-900 via-blue-900/80 to-purple-900 border-t border-cyan-500/20 shadow-lg shadow-cyan-500/5">
         <div className="w-full px-2 sm:px-4 lg:px-6 py-12">
@@ -877,7 +888,9 @@ function App() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/terms-of-service.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gray-400 hover:text-cyan-400 transition-colors flex items-center gap-2 group"
                   >
                     <span className="text-xs group-hover:translate-x-1 transition-transform">
@@ -888,7 +901,9 @@ function App() {
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/privacy-policy.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gray-400 hover:text-cyan-400 transition-colors flex items-center gap-2 group"
                   >
                     <span className="text-xs group-hover:translate-x-1 transition-transform">

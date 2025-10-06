@@ -21,15 +21,18 @@ createRoot(document.getElementById("root")).render(
     <ErrorBoundary showDetails={false}>
       <AptosWalletAdapterProvider
         plugins={wallets}
-        autoConnect={true}
+        autoConnect={false}
         onError={(error) => {
-          console.error("Wallet adapter error:", error);
-          // Don't throw for user rejections
-          if (
-            !error.message?.includes("rejected") &&
-            !error.message?.includes("User denied")
-          ) {
-            throw error;
+          // Safely handle wallet adapter errors
+          if (error && typeof error === "object") {
+            console.error("Wallet adapter error:", error);
+            // Don't throw for user rejections or undefined errors
+            if (
+              error.message?.includes("rejected") ||
+              error.message?.includes("User denied")
+            ) {
+              return; // Silent fail for user rejections
+            }
           }
         }}
       >
