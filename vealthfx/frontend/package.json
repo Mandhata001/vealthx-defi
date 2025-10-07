@@ -17,6 +17,7 @@
     "@aptos-labs/wallet-adapter-react": "^7.0.4",
     "@sentry/react": "^10.8.0",
     "@tailwindcss/forms": "^0.5.10",
+    "@vercel/analytics": "^1.5.0",
     "aptos": "^1.21.0",
     "petra-plugin-wallet-adapter": "^0.4.5",
     "react": "^19.1.1",
